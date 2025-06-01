@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
 
 export interface Quote {
   _id?: string;
@@ -23,13 +21,11 @@ export interface ZenQuote {
   providedIn: 'root'
 })
 export class QuotesService {
-  private readonly zenQuotesUrl = 'https://zenquotes.io/api';
-  private readonly quotableUrl = 'https://api.quotable.io'; // 备用API
-
-  // 设计相关的备用名言（当API失败时使用）
+  // 精选名言库（设计、励志、智慧）
   private readonly fallbackQuotes: Quote[] = [
+    // 设计相关名言
     {
-      _id: 'fallback-1',
+      _id: 'design-1',
       content: '设计不仅仅是外观和感觉，设计是它如何工作的。',
       author: 'Steve Jobs',
       tags: ['design', 'innovation'],
@@ -37,7 +33,7 @@ export class QuotesService {
       length: 25
     },
     {
-      _id: 'fallback-2',
+      _id: 'design-2',
       content: '简约是复杂的终极形式。',
       author: 'Leonardo da Vinci',
       tags: ['design', 'simplicity'],
@@ -45,7 +41,7 @@ export class QuotesService {
       length: 12
     },
     {
-      _id: 'fallback-3',
+      _id: 'design-3',
       content: '好的设计是显而易见的，伟大的设计是透明的。',
       author: 'Joe Sparano',
       tags: ['design', 'excellence'],
@@ -53,7 +49,7 @@ export class QuotesService {
       length: 22
     },
     {
-      _id: 'fallback-4',
+      _id: 'design-4',
       content: '设计是一种思维方式，而不仅仅是一种外观。',
       author: 'Jon Ive',
       tags: ['design', 'thinking'],
@@ -61,7 +57,40 @@ export class QuotesService {
       length: 21
     },
     {
-      _id: 'fallback-5',
+      _id: 'design-5',
+      content: '设计的目标是让复杂变得简单。',
+      author: 'John Maeda',
+      tags: ['design', 'simplicity'],
+      authorSlug: 'john-maeda',
+      length: 16
+    },
+    {
+      _id: 'design-6',
+      content: '细节不是细节，它们构成了设计。',
+      author: 'Charles Eames',
+      tags: ['design', 'details'],
+      authorSlug: 'charles-eames',
+      length: 17
+    },
+    {
+      _id: 'design-7',
+      content: '设计就是解决问题的艺术。',
+      author: 'Jeffrey Veen',
+      tags: ['design', 'problem-solving'],
+      authorSlug: 'jeffrey-veen',
+      length: 14
+    },
+    {
+      _id: 'design-8',
+      content: '用户体验设计的核心是同理心。',
+      author: 'Whitney Hess',
+      tags: ['design', 'ux', 'empathy'],
+      authorSlug: 'whitney-hess',
+      length: 16
+    },
+    // 创新与创意名言
+    {
+      _id: 'innovation-1',
       content: '创新就是把各种事物联系起来。',
       author: 'Steve Jobs',
       tags: ['innovation', 'creativity'],
@@ -69,56 +98,107 @@ export class QuotesService {
       length: 16
     },
     {
-      _id: 'fallback-6',
-      content: '设计的目标是让复杂变得简单。',
-      author: 'John Maeda',
-      tags: ['design', 'simplicity'],
-      authorSlug: 'john-maeda',
-      length: 16
+      _id: 'innovation-2',
+      content: '创造力就是智力在玩耍。',
+      author: 'Albert Einstein',
+      tags: ['creativity', 'intelligence'],
+      authorSlug: 'albert-einstein',
+      length: 12
+    },
+    {
+      _id: 'innovation-3',
+      content: '想象力比知识更重要。',
+      author: 'Albert Einstein',
+      tags: ['imagination', 'knowledge'],
+      authorSlug: 'albert-einstein',
+      length: 11
+    },
+    {
+      _id: 'innovation-4',
+      content: '不要害怕完美，你永远达不到它。',
+      author: 'Salvador Dalí',
+      tags: ['perfection', 'creativity'],
+      authorSlug: 'salvador-dali',
+      length: 17
+    },
+    // 励志名言
+    {
+      _id: 'motivation-1',
+      content: '成功不是终点，失败不是致命的，继续前进的勇气才是最重要的。',
+      author: 'Winston Churchill',
+      tags: ['motivation', 'success', 'courage'],
+      authorSlug: 'winston-churchill',
+      length: 32
+    },
+    {
+      _id: 'motivation-2',
+      content: '你今天的努力，是幸运的伏笔。',
+      author: '佚名',
+      tags: ['motivation', 'effort'],
+      authorSlug: 'anonymous',
+      length: 14
+    },
+    {
+      _id: 'motivation-3',
+      content: '唯一不可能的旅程，是你从未开始的那一个。',
+      author: 'Tony Robbins',
+      tags: ['motivation', 'journey'],
+      authorSlug: 'tony-robbins',
+      length: 22
+    },
+    {
+      _id: 'motivation-4',
+      content: '梦想不会逃跑，会逃跑的永远都是自己。',
+      author: '矢野浩二',
+      tags: ['motivation', 'dreams'],
+      authorSlug: 'yano-koji',
+      length: 19
+    },
+    // 智慧名言
+    {
+      _id: 'wisdom-1',
+      content: '知识就是力量。',
+      author: 'Francis Bacon',
+      tags: ['wisdom', 'knowledge'],
+      authorSlug: 'francis-bacon',
+      length: 7
+    },
+    {
+      _id: 'wisdom-2',
+      content: '学而时习之，不亦说乎。',
+      author: '孔子',
+      tags: ['wisdom', 'learning'],
+      authorSlug: 'confucius',
+      length: 12
+    },
+    {
+      _id: 'wisdom-3',
+      content: '路漫漫其修远兮，吾将上下而求索。',
+      author: '屈原',
+      tags: ['wisdom', 'perseverance'],
+      authorSlug: 'qu-yuan',
+      length: 18
+    },
+    {
+      _id: 'wisdom-4',
+      content: '生活不是等待暴风雨过去，而是学会在雨中起舞。',
+      author: 'Vivian Greene',
+      tags: ['wisdom', 'life'],
+      authorSlug: 'vivian-greene',
+      length: 25
     }
   ];
 
-  constructor(private http: HttpClient) {}
+  constructor() {}
 
   /**
-   * 获取随机名言 (使用ZenQuotes API)
+   * 获取随机名言 (使用本地名言库，避免CORS问题)
    */
   getRandomQuote(): Observable<Quote> {
-    return this.http.get<ZenQuote[]>(`${this.zenQuotesUrl}/random`)
-      .pipe(
-        map(response => this.convertZenQuoteToQuote(response[0])),
-        catchError(error => {
-          console.warn('Failed to fetch quote from ZenQuotes API, trying fallback:', error);
-          return this.getQuotableQuote();
-        })
-      );
-  }
-
-  /**
-   * 备用方法：使用Quotable API
-   */
-  private getQuotableQuote(): Observable<Quote> {
-    return this.http.get<Quote>(`${this.quotableUrl}/random`)
-      .pipe(
-        catchError(error => {
-          console.warn('Failed to fetch quote from Quotable API, using fallback:', error);
-          return this.getFallbackQuote();
-        })
-      );
-  }
-
-  /**
-   * 转换ZenQuote格式到Quote格式
-   */
-  private convertZenQuoteToQuote(zenQuote: ZenQuote): Quote {
-    return {
-      _id: `zen-${Date.now()}`,
-      content: zenQuote.q,
-      author: zenQuote.a,
-      tags: ['inspirational'], // ZenQuotes没有标签，默认设为inspirational
-      authorSlug: zenQuote.a.toLowerCase().replace(/\s+/g, '-'),
-      length: zenQuote.q.length
-    };
+    const randomIndex = Math.floor(Math.random() * this.fallbackQuotes.length);
+    const quote = this.fallbackQuotes[randomIndex];
+    console.log('Using local quote:', quote);
+    return of(quote);
   }
 
   /**
@@ -164,13 +244,7 @@ export class QuotesService {
     return selectedType();
   }
 
-  /**
-   * 获取备用名言
-   */
-  private getFallbackQuote(): Observable<Quote> {
-    const randomIndex = Math.floor(Math.random() * this.fallbackQuotes.length);
-    return of(this.fallbackQuotes[randomIndex]);
-  }
+
 
   /**
    * 根据作者获取名言 (从备用名言中搜索)

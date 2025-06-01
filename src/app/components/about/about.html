@@ -1,0 +1,39 @@
+<section id="about" class="py-20 px-6">
+  <div class="container mx-auto max-w-6xl">
+    <h2 class="text-4xl md:text-6xl font-bold text-center mb-16 gradient-text">关于我</h2>
+
+    <div class="grid md:grid-cols-2 gap-12 items-center">
+      <!-- About Text -->
+      <div class="space-y-6">
+        <p class="text-lg text-white/90 leading-relaxed">
+          我是一名充满激情的设计师，专注于创造具有影响力的数字体验。在过去的5年中，我帮助众多品牌通过创新的设计解决方案实现了他们的愿景。
+        </p>
+        <p class="text-lg text-white/90 leading-relaxed">
+          我相信设计不仅仅是视觉美学，更是解决问题的工具。每一个项目都是一次新的探索，我致力于在功能性和美观性之间找到完美的平衡。
+        </p>
+
+        <!-- Skills -->
+        <div class="mt-8">
+          <h3 class="text-xl font-semibold mb-4 text-cyan-400">技能专长</h3>
+          <div class="flex flex-wrap gap-3">
+            @for (skill of skills; track skill) {
+              <span class="px-4 py-2 glass rounded-full text-sm font-medium hover:bg-white/20 transition-all duration-300">
+                {{ skill }}
+              </span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- About Visual -->
+      <div class="relative">
+        <div class="glass rounded-3xl p-8 h-96 flex items-center justify-center">
+          <div class="text-center">
+            <div class="text-6xl mb-4">🎨</div>
+            <p class="text-lg text-white/80">创意无界，设计有魂</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

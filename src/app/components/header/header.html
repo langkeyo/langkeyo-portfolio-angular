@@ -1,0 +1,50 @@
+<header class="fixed top-0 w-full z-50 glass transition-all duration-300 ease-in-out">
+  <!-- Progress indicator -->
+  <div class="scroll-indicator absolute top-0 left-0 h-1 bg-gradient-to-r from-pink-500 to-cyan-400 transition-all duration-300"></div>
+
+  <nav class="container mx-auto px-6 py-4">
+    <div class="flex items-center justify-between">
+      <!-- Logo -->
+      <div class="logo">
+        <h1 class="text-2xl font-bold gradient-text font-display">
+          Langkeyo Design
+        </h1>
+      </div>
+
+      <!-- Desktop Navigation -->
+      <ul class="hidden md:flex items-center space-x-8">
+        <li>
+          <a (click)="scrollToSection('home')" class="nav-link relative text-white font-medium transition-all duration-300 hover:text-cyan-400 cursor-pointer">
+            首页
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-cyan-400 transition-all duration-300 hover:w-full"></span>
+          </a>
+        </li>
+        <li>
+          <a (click)="scrollToSection('about')" class="nav-link relative text-white font-medium transition-all duration-300 hover:text-cyan-400 cursor-pointer">
+            关于
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-cyan-400 transition-all duration-300 hover:w-full"></span>
+          </a>
+        </li>
+        <li>
+          <a (click)="scrollToSection('projects')" class="nav-link relative text-white font-medium transition-all duration-300 hover:text-cyan-400 cursor-pointer">
+            作品
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-cyan-400 transition-all duration-300 hover:w-full"></span>
+          </a>
+        </li>
+        <li>
+          <a (click)="scrollToSection('contact')" class="nav-link relative text-white font-medium transition-all duration-300 hover:text-cyan-400 cursor-pointer">
+            联系
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-cyan-400 transition-all duration-300 hover:w-full"></span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- Mobile Menu Button -->
+      <button (click)="toggleMobileMenu()" class="md:hidden p-2 rounded-full glass hover:bg-white/20 transition-all duration-300" aria-label="菜单">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+    </div>
+  </nav>
+</header>

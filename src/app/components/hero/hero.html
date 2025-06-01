@@ -1,0 +1,70 @@
+<section id="home" class="hero relative min-h-screen flex items-center justify-center overflow-hidden">
+
+  <!-- Background floating shapes -->
+  <div #floatingShapes class="floating-shapes absolute inset-0 pointer-events-none">
+    <div class="floating-shape absolute w-24 h-24 bg-white/10 rounded-full top-1/4 left-1/4 animate-float"></div>
+    <div class="floating-shape absolute w-16 h-16 bg-white/10 rounded-full top-3/5 right-1/4 animate-float" style="animation-delay: 2s;"></div>
+    <div class="floating-shape absolute w-20 h-20 bg-white/10 rounded-full bottom-1/4 left-1/5 animate-float" style="animation-delay: 4s;"></div>
+    <div class="floating-shape absolute w-12 h-12 bg-white/10 rounded-full top-1/3 right-1/3 animate-float" style="animation-delay: 1s;"></div>
+    <div class="floating-shape absolute w-28 h-28 bg-white/10 rounded-full bottom-1/3 right-1/5 animate-float" style="animation-delay: 3s;"></div>
+  </div>
+
+  <!-- Main hero content -->
+  <div #heroContent class="hero-content relative z-10 text-center max-w-4xl mx-auto px-6">
+
+    <!-- Dynamic title with text rotation -->
+    <h1 class="hero-title text-5xl md:text-7xl font-bold mb-6 font-display">
+      <span class="gradient-text">
+        {{ heroTexts[currentText()] }}
+      </span>
+    </h1>
+
+    <!-- Subtitle -->
+    <p class="hero-subtitle text-xl md:text-2xl mb-8 text-white/90 max-w-2xl mx-auto leading-relaxed">
+      我是<strong class="text-cyan-400">浪客哟</strong>，一名专注于数字体验设计的创意工作者。
+      通过前沿技术与艺术美学的融合，创造令人难忘的视觉体验。
+    </p>
+
+    <!-- Call to action buttons -->
+    <div class="hero-cta flex flex-col sm:flex-row gap-4 justify-center items-center">
+      <button
+        (click)="scrollToProjects()"
+        class="btn-primary px-8 py-4 bg-gradient-to-r from-pink-500 to-cyan-400 text-white font-semibold rounded-full hover:shadow-2xl hover:shadow-pink-500/25 transition-all duration-300 btn-glow">
+        查看我的作品
+        <svg class="inline-block ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+        </svg>
+      </button>
+
+      <button
+        (click)="downloadCV()"
+        class="btn-secondary px-8 py-4 glass border border-white/20 text-white font-semibold rounded-full hover:bg-white/20 transition-all duration-300">
+        下载简历
+        <svg class="inline-block ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+      <div class="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
+        <div class="w-1 h-3 bg-white/70 rounded-full mt-2 animate-pulse"></div>
+      </div>
+      <p class="text-sm text-white/70 mt-2">向下滚动</p>
+    </div>
+  </div>
+
+  <!-- Particle effect overlay -->
+  <div class="particle-overlay absolute inset-0 pointer-events-none">
+    @for (i of [1,2,3,4,5,6,7,8,9,10]; track i) {
+      <div
+        class="particle absolute w-1 h-1 bg-white/30 rounded-full animate-float"
+        [style.left.%]="(i * 10) + (i % 3 * 5)"
+        [style.top.%]="(i * 8) + (i % 4 * 10)"
+        [style.animation-delay.s]="i * 0.5">
+      </div>
+    }
+  </div>
+
+</section>

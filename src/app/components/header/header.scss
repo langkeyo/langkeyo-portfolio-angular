@@ -1,0 +1,68 @@
+header {
+  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+
+  &.scrolled {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(30px);
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .scroll-indicator {
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  .logo h1 {
+    background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    background-size: 200% 200%;
+    animation: gradient 3s ease-in-out infinite;
+  }
+
+  .nav-link {
+    position: relative;
+
+    &:hover span {
+      width: 100%;
+    }
+
+    &.active {
+      color: #4ecdc4;
+
+      span {
+        width: 100%;
+      }
+    }
+  }
+
+  button {
+    &:hover {
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+// Mobile menu animations
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mobile-menu {
+  animation: slideDown 0.3s ease-out;
+}

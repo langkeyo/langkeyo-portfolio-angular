@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { GitHubStatsComponent } from '../github-stats/github-stats.component';
 
 @Component({
   selector: 'app-about',
-  imports: [CommonModule],
+  imports: [CommonModule, GitHubStatsComponent],
   templateUrl: './about.html',
   styleUrl: './about.scss'
 })

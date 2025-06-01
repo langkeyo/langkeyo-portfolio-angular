@@ -1,0 +1,86 @@
+.loading-state {
+  @apply flex flex-col items-center justify-center py-12;
+}
+
+.loading-spinner {
+  @apply w-8 h-8 border-4 border-white/20 border-t-cyan-400 rounded-full animate-spin mb-4;
+}
+
+.error-state {
+  @apply flex flex-col items-center justify-center py-12;
+}
+
+.retry-btn {
+  @apply px-6 py-2 bg-gradient-to-r from-pink-500 to-cyan-400 text-white rounded-lg hover:shadow-lg transition-all duration-300;
+}
+
+.stats-content {
+  @apply space-y-8;
+}
+
+.main-stats {
+  @apply grid grid-cols-2 md:grid-cols-4 gap-4 mb-8;
+}
+
+.stat-card {
+  @apply rounded-xl p-6 text-center hover:scale-105 transition-all duration-300;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-icon {
+  @apply w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3;
+
+  &.repos { @apply bg-gradient-to-r from-blue-500 to-purple-500 text-white; }
+  &.stars { @apply bg-gradient-to-r from-yellow-400 to-orange-500 text-white; }
+  &.forks { @apply bg-gradient-to-r from-green-400 to-blue-500 text-white; }
+  &.followers { @apply bg-gradient-to-r from-pink-500 to-red-500 text-white; }
+}
+
+.stat-number {
+  @apply text-2xl font-bold text-white mb-1;
+}
+
+.stat-label {
+  @apply text-sm text-white/70;
+}
+
+.languages-section, .top-repos-section {
+  @apply rounded-xl p-6;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.language-item {
+  @apply flex items-center justify-between py-2;
+}
+
+.language-color {
+  @apply w-4 h-4 rounded-full;
+}
+
+.language-name {
+  @apply text-white font-medium;
+}
+
+.repos-grid {
+  @apply grid md:grid-cols-3 gap-4;
+}
+
+.repo-card {
+  @apply bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-all duration-300;
+}
+
+.repo-name {
+  @apply text-white font-semibold truncate;
+}
+
+.repo-link {
+  @apply text-cyan-400 hover:text-cyan-300;
+}
+
+.refresh-btn {
+  @apply inline-flex items-center px-6 py-3 bg-gradient-to-r from-pink-500 to-cyan-400 text-white rounded-lg hover:shadow-lg transition-all duration-300;
+}

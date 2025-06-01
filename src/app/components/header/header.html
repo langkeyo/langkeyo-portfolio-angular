@@ -11,33 +11,41 @@
         </h1>
       </div>
 
-      <!-- Desktop Navigation -->
-      <ul class="hidden md:flex items-center space-x-8">
-        <li>
-          <a (click)="scrollToSection('home')" class="nav-link relative text-white font-medium transition-all duration-300 hover:text-cyan-400 cursor-pointer">
-            首页
-            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-cyan-400 transition-all duration-300 hover:w-full"></span>
-          </a>
-        </li>
-        <li>
-          <a (click)="scrollToSection('about')" class="nav-link relative text-white font-medium transition-all duration-300 hover:text-cyan-400 cursor-pointer">
-            关于
-            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-cyan-400 transition-all duration-300 hover:w-full"></span>
-          </a>
-        </li>
-        <li>
-          <a (click)="scrollToSection('projects')" class="nav-link relative text-white font-medium transition-all duration-300 hover:text-cyan-400 cursor-pointer">
-            作品
-            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-cyan-400 transition-all duration-300 hover:w-full"></span>
-          </a>
-        </li>
-        <li>
-          <a (click)="scrollToSection('contact')" class="nav-link relative text-white font-medium transition-all duration-300 hover:text-cyan-400 cursor-pointer">
-            联系
-            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-cyan-400 transition-all duration-300 hover:w-full"></span>
-          </a>
-        </li>
-      </ul>
+      <!-- Desktop Navigation and Weather -->
+      <div class="hidden md:flex items-center space-x-8">
+        <!-- Navigation Links -->
+        <ul class="flex items-center space-x-8">
+          <li>
+            <a (click)="scrollToSection('home')" class="nav-link relative text-white font-medium transition-all duration-300 hover:text-cyan-400 cursor-pointer">
+              首页
+              <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-cyan-400 transition-all duration-300 hover:w-full"></span>
+            </a>
+          </li>
+          <li>
+            <a (click)="scrollToSection('about')" class="nav-link relative text-white font-medium transition-all duration-300 hover:text-cyan-400 cursor-pointer">
+              关于
+              <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-cyan-400 transition-all duration-300 hover:w-full"></span>
+            </a>
+          </li>
+          <li>
+            <a (click)="scrollToSection('projects')" class="nav-link relative text-white font-medium transition-all duration-300 hover:text-cyan-400 cursor-pointer">
+              作品
+              <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-cyan-400 transition-all duration-300 hover:w-full"></span>
+            </a>
+          </li>
+          <li>
+            <a (click)="scrollToSection('contact')" class="nav-link relative text-white font-medium transition-all duration-300 hover:text-cyan-400 cursor-pointer">
+              联系
+              <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-cyan-400 transition-all duration-300 hover:w-full"></span>
+            </a>
+          </li>
+        </ul>
+
+        <!-- Weather Widget -->
+        <div class="weather-container">
+          <app-weather-widget></app-weather-widget>
+        </div>
+      </div>
 
       <!-- Mobile Menu Button -->
       <button (click)="toggleMobileMenu()" class="md:hidden p-2 rounded-full glass hover:bg-white/20 transition-all duration-300" aria-label="菜单">

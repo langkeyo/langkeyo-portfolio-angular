@@ -2,10 +2,11 @@ import { Component, OnInit, OnDestroy, signal, computed, inject, PLATFORM_ID, In
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter, Subject, takeUntil } from 'rxjs';
+import { WeatherWidgetComponent } from '../weather-widget/weather-widget.component';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule],
+  imports: [CommonModule, WeatherWidgetComponent],
   templateUrl: './header.html',
   styleUrl: './header.scss'
 })

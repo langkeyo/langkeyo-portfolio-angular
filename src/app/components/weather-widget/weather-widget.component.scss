@@ -1,0 +1,145 @@
+.weather-widget {
+  @apply relative;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 1rem;
+  min-width: 280px;
+  max-width: 320px;
+}
+
+// 加载状态
+.weather-loading {
+  @apply flex items-center justify-center py-6;
+  
+  .loading-spinner {
+    @apply w-5 h-5 border-2 border-white/20 border-t-cyan-400 rounded-full animate-spin mr-3;
+  }
+  
+  .loading-text {
+    @apply text-white/70 text-sm;
+  }
+}
+
+// 错误状态
+.weather-error {
+  @apply flex flex-col items-center justify-center py-6 text-center;
+  
+  .error-icon {
+    @apply text-2xl mb-2;
+  }
+  
+  .error-text {
+    @apply text-white/70 text-sm mb-3;
+  }
+  
+  .retry-btn {
+    @apply px-3 py-1 bg-white/20 text-white text-xs rounded-lg hover:bg-white/30 transition-all duration-200;
+  }
+}
+
+// 天气内容
+.weather-content {
+  @apply relative;
+}
+
+// 主要天气信息
+.weather-main {
+  @apply flex items-center mb-4;
+  
+  .weather-icon {
+    @apply text-3xl mr-3;
+  }
+  
+  .weather-info {
+    @apply flex-1;
+    
+    .temperature {
+      @apply text-2xl font-bold mb-1;
+    }
+    
+    .weather-desc {
+      @apply text-white/80 text-sm;
+    }
+  }
+}
+
+// 位置和时间
+.weather-location {
+  @apply flex items-center justify-between mb-4 text-xs text-white/60;
+  
+  .location {
+    @apply flex items-center;
+  }
+  
+  .update-time {
+    @apply text-right;
+  }
+}
+
+// 详细信息
+.weather-details {
+  @apply grid grid-cols-2 gap-3 mb-4;
+}
+
+.detail-item {
+  @apply flex items-center bg-white/5 rounded-lg p-2;
+  
+  .detail-icon {
+    @apply text-lg mr-2;
+  }
+  
+  .detail-info {
+    @apply flex-1;
+    
+    .detail-value {
+      @apply text-white font-medium text-sm;
+    }
+    
+    .detail-label {
+      @apply text-white/60 text-xs;
+    }
+  }
+}
+
+// 问候语
+.weather-greeting {
+  @apply text-center text-white/80 text-sm mb-4 py-2 bg-white/5 rounded-lg;
+}
+
+// 刷新按钮
+.refresh-btn {
+  @apply absolute top-2 right-2 p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 disabled:opacity-50;
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .weather-widget {
+    @apply min-w-0 max-w-none w-full;
+  }
+  
+  .weather-details {
+    @apply grid-cols-1 gap-2;
+  }
+  
+  .detail-item {
+    @apply justify-center text-center;
+  }
+}
+
+// 动画效果
+.weather-content {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

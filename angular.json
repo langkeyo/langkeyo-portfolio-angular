@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "modern-portfolio-angular": {
+    "langkeyo-portfolio-angular": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -63,10 +63,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "modern-portfolio-angular:build:production"
+              "buildTarget": "langkeyo-portfolio-angular:build:production"
             },
             "development": {
-              "buildTarget": "modern-portfolio-angular:build:development"
+              "buildTarget": "langkeyo-portfolio-angular:build:development"
             }
           },
           "defaultConfiguration": "development"

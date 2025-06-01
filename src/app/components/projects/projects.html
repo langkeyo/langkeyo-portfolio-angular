@@ -2,6 +2,21 @@
   <div class="container mx-auto max-w-6xl">
     <h2 class="text-4xl md:text-6xl font-bold text-center mb-16 gradient-text">精选作品</h2>
 
+    <!-- GitHub 技术统计 -->
+    <div class="mb-20">
+      <div class="text-center mb-8">
+        <h3 class="text-2xl font-bold text-white mb-2">技术实力展示</h3>
+        <p class="text-white/70">实时GitHub数据，展示我的开发活跃度和技术栈</p>
+      </div>
+      <app-github-stats></app-github-stats>
+    </div>
+
+    <!-- 项目作品展示 -->
+    <div class="text-center mb-12">
+      <h3 class="text-3xl font-bold text-white mb-4">设计作品集</h3>
+      <p class="text-white/70 max-w-2xl mx-auto">以下是我精心挑选的设计项目，展示了我在不同领域的创意能力和技术实现</p>
+    </div>
+
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
       <div class="project-card glass rounded-3xl p-6 hover:transform hover:scale-105 transition-all duration-300">
         <div class="project-image h-48 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl mb-6 flex items-center justify-center text-4xl">

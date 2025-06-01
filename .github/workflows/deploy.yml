@@ -35,6 +35,11 @@ jobs:
     - name: Build Angular app
       run: pnpm run build --configuration production --base-href /langkeyo-portfolio-angular/
       
+    - name: Fix Angular SPA routing for GitHub Pages
+      run: |
+        cp dist/langkeyo-portfolio-angular/index.html dist/langkeyo-portfolio-angular/404.html
+        echo "langkeyo.github.io" > dist/langkeyo-portfolio-angular/CNAME
+      
     - name: Setup Pages
       uses: actions/configure-pages@v4
       with:

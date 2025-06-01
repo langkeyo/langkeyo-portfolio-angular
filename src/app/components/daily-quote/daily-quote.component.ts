@@ -142,8 +142,8 @@ export class DailyQuoteComponent implements OnInit {
    * 检查是否为设计相关名言
    */
   isDesignQuote(): boolean {
-    if (!this.quote) return false;
-    return this.quote.tags.some(tag => 
+    if (!this.quote || !this.quote.tags) return false;
+    return this.quote.tags.some(tag =>
       ['design', 'art', 'creativity', 'innovation'].includes(tag.toLowerCase())
     );
   }

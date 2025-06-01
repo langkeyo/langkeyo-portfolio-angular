@@ -4,20 +4,28 @@ import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 export interface Quote {
-  _id: string;
+  _id?: string;
   content: string;
   author: string;
-  tags: string[];
-  authorSlug: string;
-  length: number;
+  tags?: string[];
+  authorSlug?: string;
+  length?: number;
+}
+
+// ZenQuotes API 响应格式
+export interface ZenQuote {
+  q: string; // quote text
+  a: string; // author
+  h: string; // HTML formatted quote
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class QuotesService {
-  private readonly baseUrl = 'https://api.quotable.io';
-  
+  private readonly zenQuotesUrl = 'https://zenquotes.io/api';
+  private readonly quotableUrl = 'https://api.quotable.io'; // 备用API
+
   // 设计相关的备用名言（当API失败时使用）
   private readonly fallbackQuotes: Quote[] = [
     {
@@ -73,55 +81,69 @@ export class QuotesService {
   constructor(private http: HttpClient) {}
 
   /**
-   * 获取随机名言
+   * 获取随机名言 (使用ZenQuotes API)
    */
   getRandomQuote(): Observable<Quote> {
-    return this.http.get<Quote>(`${this.baseUrl}/random?tags=inspirational|motivational|success|wisdom`)
+    return this.http.get<ZenQuote[]>(`${this.zenQuotesUrl}/random`)
+      .pipe(
+        map(response => this.convertZenQuoteToQuote(response[0])),
+        catchError(error => {
+          console.warn('Failed to fetch quote from ZenQuotes API, trying fallback:', error);
+          return this.getQuotableQuote();
+        })
+      );
+  }
+
+  /**
+   * 备用方法：使用Quotable API
+   */
+  private getQuotableQuote(): Observable<Quote> {
+    return this.http.get<Quote>(`${this.quotableUrl}/random`)
       .pipe(
         catchError(error => {
-          console.warn('Failed to fetch quote from API, using fallback:', error);
+          console.warn('Failed to fetch quote from Quotable API, using fallback:', error);
           return this.getFallbackQuote();
         })
       );
   }
 
   /**
-   * 获取设计相关的名言
+   * 转换ZenQuote格式到Quote格式
+   */
+  private convertZenQuoteToQuote(zenQuote: ZenQuote): Quote {
+    return {
+      _id: `zen-${Date.now()}`,
+      content: zenQuote.q,
+      author: zenQuote.a,
+      tags: ['inspirational'], // ZenQuotes没有标签，默认设为inspirational
+      authorSlug: zenQuote.a.toLowerCase().replace(/\s+/g, '-'),
+      length: zenQuote.q.length
+    };
+  }
+
+  /**
+   * 获取设计相关的名言 (从备用名言中选择设计相关的)
    */
   getDesignQuote(): Observable<Quote> {
-    return this.http.get<Quote>(`${this.baseUrl}/random?tags=design|art|creativity`)
-      .pipe(
-        catchError(error => {
-          console.warn('Failed to fetch design quote from API, using fallback:', error);
-          return this.getFallbackQuote();
-        })
-      );
+    const designQuotes = this.fallbackQuotes.filter(quote =>
+      quote.tags?.some(tag => ['design', 'creativity', 'innovation'].includes(tag))
+    );
+    const randomQuote = designQuotes[Math.floor(Math.random() * designQuotes.length)];
+    return of(randomQuote);
   }
 
   /**
-   * 获取励志名言
+   * 获取励志名言 (使用ZenQuotes API)
    */
   getInspirationalQuote(): Observable<Quote> {
-    return this.http.get<Quote>(`${this.baseUrl}/random?tags=inspirational|motivational|success`)
-      .pipe(
-        catchError(error => {
-          console.warn('Failed to fetch inspirational quote from API, using fallback:', error);
-          return this.getFallbackQuote();
-        })
-      );
+    return this.getRandomQuote(); // ZenQuotes主要提供励志名言
   }
 
   /**
-   * 获取智慧名言
+   * 获取智慧名言 (使用ZenQuotes API)
    */
   getWisdomQuote(): Observable<Quote> {
-    return this.http.get<Quote>(`${this.baseUrl}/random?tags=wisdom|philosophy|life`)
-      .pipe(
-        catchError(error => {
-          console.warn('Failed to fetch wisdom quote from API, using fallback:', error);
-          return this.getFallbackQuote();
-        })
-      );
+    return this.getRandomQuote(); // ZenQuotes包含智慧名言
   }
 
   /**
@@ -151,30 +173,23 @@ export class QuotesService {
   }
 
   /**
-   * 根据作者获取名言
+   * 根据作者获取名言 (从备用名言中搜索)
    */
   getQuoteByAuthor(author: string): Observable<Quote[]> {
-    return this.http.get<{results: Quote[]}>(`${this.baseUrl}/quotes?author=${author}&limit=5`)
-      .pipe(
-        map(response => response.results),
-        catchError(error => {
-          console.error('Failed to fetch quotes by author:', error);
-          return of([]);
-        })
-      );
+    const authorQuotes = this.fallbackQuotes.filter(quote =>
+      quote.author.toLowerCase().includes(author.toLowerCase())
+    );
+    return of(authorQuotes);
   }
 
   /**
-   * 搜索名言
+   * 搜索名言 (从备用名言中搜索)
    */
   searchQuotes(query: string): Observable<Quote[]> {
-    return this.http.get<{results: Quote[]}>(`${this.baseUrl}/search/quotes?query=${encodeURIComponent(query)}&limit=10`)
-      .pipe(
-        map(response => response.results),
-        catchError(error => {
-          console.error('Failed to search quotes:', error);
-          return of([]);
-        })
-      );
+    const searchResults = this.fallbackQuotes.filter(quote =>
+      quote.content.toLowerCase().includes(query.toLowerCase()) ||
+      quote.author.toLowerCase().includes(query.toLowerCase())
+    );
+    return of(searchResults);
   }
 }

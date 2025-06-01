@@ -35,10 +35,28 @@ jobs:
     - name: Build Angular app
       run: pnpm run build --configuration production --base-href /langkeyo-portfolio-angular/
       
+    - name: Debug - Check build output
+      run: |
+        echo "Checking dist folder structure:"
+        ls -la dist/
+        echo "Looking for index.html files:"
+        find dist/ -name "index.html" -type f
+      
     - name: Fix Angular SPA routing for GitHub Pages
       run: |
-        cp dist/langkeyo-portfolio-angular/index.html dist/langkeyo-portfolio-angular/404.html
-        echo "langkeyo.github.io" > dist/langkeyo-portfolio-angular/CNAME
+        # Find the actual build output directory
+        BUILD_DIR=$(find dist/ -name "index.html" -type f | head -1 | xargs dirname)
+        echo "Build directory found: $BUILD_DIR"
+        
+        # Copy index.html to 404.html for SPA routing
+        cp "$BUILD_DIR/index.html" "$BUILD_DIR/404.html"
+        echo "Created 404.html for SPA routing"
+        
+        # Add CNAME for custom domain (optional)
+        echo "langkeyo.github.io" > "$BUILD_DIR/CNAME"
+        
+        # Set environment variable for upload step
+        echo "BUILD_PATH=$BUILD_DIR" >> $GITHUB_ENV
       
     - name: Setup Pages
       uses: actions/configure-pages@v4
@@ -48,7 +66,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
       with:
-        path: './dist/langkeyo-portfolio-angular'
+        path: ${{ env.BUILD_PATH }}
         
     - name: Deploy to GitHub Pages
       id: deployment

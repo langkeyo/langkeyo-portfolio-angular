@@ -1,10 +1,11 @@
 import { Component, OnInit, OnDestroy, signal, inject, ElementRef, ViewChild, PLATFORM_ID, Inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { gsap } from 'gsap';
+import { DailyQuoteComponent } from '../daily-quote/daily-quote.component';
 
 @Component({
   selector: 'app-hero',
-  imports: [CommonModule],
+  imports: [CommonModule, DailyQuoteComponent],
   templateUrl: './hero.html',
   styleUrl: './hero.scss'
 })

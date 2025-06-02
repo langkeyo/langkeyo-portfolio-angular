@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { QuotesService, Quote } from '../../services/quotes.service';
+import { UserInteractionService } from '../../services/user-interaction.service';
 
 @Component({
   selector: 'app-daily-quote',
@@ -15,14 +16,21 @@ export class DailyQuoteComponent implements OnInit {
   error = false;
   isVisible = false;
 
-  constructor(private quotesService: QuotesService) {}
+  constructor(
+    private quotesService: QuotesService,
+    private userInteractionService: UserInteractionService
+  ) {}
 
   ngOnInit() {
-    this.loadDailyQuote();
     // 延迟显示动画
     setTimeout(() => {
       this.isVisible = true;
     }, 500);
+
+    // 等待用户交互后再加载数据
+    this.userInteractionService.onUserInteraction(() => {
+      this.loadDailyQuote();
+    });
   }
 
   loadDailyQuote() {

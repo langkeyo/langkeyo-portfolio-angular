@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GitHubService, GitHubStats } from '../../services/github.service';
+import { UserInteractionService } from '../../services/user-interaction.service';
 
 @Component({
   selector: 'app-github-stats',
@@ -14,10 +15,16 @@ export class GitHubStatsComponent implements OnInit {
   loading = true;
   error = false;
 
-  constructor(private githubService: GitHubService) {}
+  constructor(
+    private githubService: GitHubService,
+    private userInteractionService: UserInteractionService
+  ) {}
 
   ngOnInit() {
-    this.loadGitHubStats();
+    // 等待用户交互后再加载数据
+    this.userInteractionService.onUserInteraction(() => {
+      this.loadGitHubStats();
+    });
   }
 
   loadGitHubStats() {

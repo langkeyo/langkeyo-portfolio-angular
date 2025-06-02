@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WeatherService, WeatherData, GeolocationData } from '../../services/weather.service';
+import { UserInteractionService } from '../../services/user-interaction.service';
 import { interval, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
@@ -20,11 +21,17 @@ export class WeatherWidgetComponent implements OnInit, OnDestroy {
   private updateSubscription?: Subscription;
   private readonly updateInterval = 10 * 60 * 1000; // 10分钟更新一次
 
-  constructor(private weatherService: WeatherService) {}
+  constructor(
+    private weatherService: WeatherService,
+    private userInteractionService: UserInteractionService
+  ) {}
 
   ngOnInit() {
-    this.loadWeatherData();
-    this.startAutoUpdate();
+    // 等待用户交互后再加载数据
+    this.userInteractionService.onUserInteraction(() => {
+      this.loadWeatherData();
+      this.startAutoUpdate();
+    });
   }
 
   ngOnDestroy() {

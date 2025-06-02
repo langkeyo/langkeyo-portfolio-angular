@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Observable, forkJoin, BehaviorSubject, of } from 'rxjs';
+import { map, catchError, shareReplay, tap, filter } from 'rxjs/operators';
 
 export interface GitHubUser {
   login: string;
@@ -45,6 +45,12 @@ export class GitHubService {
   private readonly baseUrl = 'https://api.github.com';
   private readonly username = 'langkeyo'; // 你的GitHub用户名
 
+  // 缓存相关
+  private statsCache$ = new BehaviorSubject<GitHubStats | null>(null);
+  private cacheTimestamp = 0;
+  private readonly cacheExpiry = 5 * 60 * 1000; // 5分钟缓存
+  private loadingStats$ = new BehaviorSubject<boolean>(false);
+
   constructor(private http: HttpClient) {}
 
   /**
@@ -74,9 +80,32 @@ export class GitHubService {
   }
 
   /**
-   * 获取完整的GitHub统计信息
+   * 获取完整的GitHub统计信息（带缓存优化）
    */
   getGitHubStats(): Observable<GitHubStats> {
+    const now = Date.now();
+    const cachedStats = this.statsCache$.value;
+
+    // 检查缓存是否有效
+    if (cachedStats && (now - this.cacheTimestamp) < this.cacheExpiry) {
+      console.log('🎯 Using cached GitHub stats');
+      return of(cachedStats);
+    }
+
+    // 检查是否正在加载中
+    if (this.loadingStats$.value) {
+      console.log('🔄 GitHub stats already loading, waiting...');
+      return this.statsCache$.asObservable().pipe(
+        filter(stats => stats !== null),
+        map(stats => stats!),
+        shareReplay(1)
+      );
+    }
+
+    // 开始加载新数据
+    console.log('🚀 Fetching fresh GitHub stats');
+    this.loadingStats$.next(true);
+
     return forkJoin({
       user: this.getUser(),
       repos: this.getUserRepos()
@@ -84,10 +113,10 @@ export class GitHubService {
       map(({ user, repos }) => {
         // 计算总星标数
         const totalStars = repos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
-        
+
         // 计算总Fork数
         const totalForks = repos.reduce((sum, repo) => sum + repo.forks_count, 0);
-        
+
         // 统计编程语言
         const languages: { [key: string]: number } = {};
         repos.forEach(repo => {
@@ -102,7 +131,7 @@ export class GitHubService {
           .sort((a, b) => b.stargazers_count - a.stargazers_count)
           .slice(0, 6);
 
-        return {
+        const stats: GitHubStats = {
           user,
           repos,
           totalStars,
@@ -110,11 +139,20 @@ export class GitHubService {
           languages,
           topRepos
         };
+
+        // 更新缓存
+        this.statsCache$.next(stats);
+        this.cacheTimestamp = now;
+        this.loadingStats$.next(false);
+
+        return stats;
       }),
       catchError(error => {
         console.error('Error fetching GitHub stats:', error);
+        this.loadingStats$.next(false);
         throw error;
-      })
+      }),
+      shareReplay(1) // 确保多个订阅者共享同一个请求
     );
   }
 
@@ -124,9 +162,9 @@ export class GitHubService {
   getRecentActivity(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/users/${this.username}/events/public?per_page=10`)
       .pipe(
-        map(events => events.filter(event => 
-          event.type === 'PushEvent' || 
-          event.type === 'CreateEvent' || 
+        map(events => events.filter(event =>
+          event.type === 'PushEvent' ||
+          event.type === 'CreateEvent' ||
           event.type === 'PullRequestEvent'
         )),
         catchError(error => {
@@ -134,5 +172,37 @@ export class GitHubService {
           return [];
         })
       );
+  }
+
+  /**
+   * 获取缓存状态
+   */
+  getCachedStats(): GitHubStats | null {
+    return this.statsCache$.value;
+  }
+
+  /**
+   * 检查是否正在加载
+   */
+  isLoading(): boolean {
+    return this.loadingStats$.value;
+  }
+
+  /**
+   * 强制刷新数据（清除缓存）
+   */
+  refreshStats(): Observable<GitHubStats> {
+    this.statsCache$.next(null);
+    this.cacheTimestamp = 0;
+    return this.getGitHubStats();
+  }
+
+  /**
+   * 清除缓存
+   */
+  clearCache(): void {
+    this.statsCache$.next(null);
+    this.cacheTimestamp = 0;
+    console.log('🗑️ GitHub stats cache cleared');
   }
 }

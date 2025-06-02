@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WeatherService, WeatherData, GeolocationData } from '../../services/weather.service';
 import { UserInteractionService } from '../../services/user-interaction.service';
@@ -17,13 +17,15 @@ export class WeatherWidgetComponent implements OnInit, OnDestroy {
   loading = true;
   error = false;
   userLocation: GeolocationData | null = null;
-  
+  isExpanded = false; // 控制展开/收起状态
+
   private updateSubscription?: Subscription;
   private readonly updateInterval = 10 * 60 * 1000; // 10分钟更新一次
 
   constructor(
     private weatherService: WeatherService,
-    private userInteractionService: UserInteractionService
+    private userInteractionService: UserInteractionService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -69,12 +71,14 @@ export class WeatherWidgetComponent implements OnInit, OnDestroy {
       next: (weather) => {
         this.weather = weather;
         this.loading = false;
+        this.cdr.detectChanges(); // 手动触发变更检测
         console.log('Weather data loaded:', weather);
       },
       error: (error) => {
         console.error('Failed to load weather data:', error);
         this.error = true;
         this.loading = false;
+        this.cdr.detectChanges(); // 手动触发变更检测
       }
     });
   }
@@ -92,6 +96,7 @@ export class WeatherWidgetComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (weather) => {
           this.weather = weather;
+          this.cdr.detectChanges(); // 手动触发变更检测
           console.log('Weather data auto-updated:', weather);
         },
         error: (error) => {
@@ -105,6 +110,13 @@ export class WeatherWidgetComponent implements OnInit, OnDestroy {
    */
   refreshWeather() {
     this.loadWeatherData();
+  }
+
+  /**
+   * 切换展开/收起状态
+   */
+  toggleExpanded() {
+    this.isExpanded = !this.isExpanded;
   }
 
   /**

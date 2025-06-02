@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { QuotesService, Quote } from '../../services/quotes.service';
 import { UserInteractionService } from '../../services/user-interaction.service';
@@ -18,13 +18,15 @@ export class DailyQuoteComponent implements OnInit {
 
   constructor(
     private quotesService: QuotesService,
-    private userInteractionService: UserInteractionService
+    private userInteractionService: UserInteractionService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     // 延迟显示动画
     setTimeout(() => {
       this.isVisible = true;
+      this.cdr.detectChanges(); // 手动触发变更检测
     }, 500);
 
     // 等待用户交互后再加载数据
@@ -41,12 +43,14 @@ export class DailyQuoteComponent implements OnInit {
       next: (quote) => {
         this.quote = quote;
         this.loading = false;
+        this.cdr.detectChanges(); // 手动触发变更检测
         console.log('Daily quote loaded:', quote);
       },
       error: (error) => {
         console.error('Failed to load daily quote:', error);
         this.error = true;
         this.loading = false;
+        this.cdr.detectChanges(); // 手动触发变更检测
       }
     });
   }
@@ -56,10 +60,12 @@ export class DailyQuoteComponent implements OnInit {
    */
   getNewQuote() {
     this.isVisible = false;
+    this.cdr.detectChanges();
     setTimeout(() => {
       this.loadDailyQuote();
       setTimeout(() => {
         this.isVisible = true;
+        this.cdr.detectChanges();
       }, 300);
     }, 300);
   }

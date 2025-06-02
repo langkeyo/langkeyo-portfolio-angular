@@ -1,4 +1,4 @@
-<section id="home" class="hero relative min-h-screen flex items-center justify-center overflow-hidden">
+<section id="home" class="hero relative h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-500">
 
   <!-- Background floating shapes -->
   <div #floatingShapes class="floating-shapes absolute inset-0 pointer-events-none">
@@ -52,7 +52,10 @@
     </div>
 
     <!-- Scroll indicator -->
-    <div class="scroll-indicator absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+    <div
+      class="scroll-indicator absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce transition-opacity duration-500"
+      [class.opacity-0]="!showScrollIndicator()"
+      [class.opacity-100]="showScrollIndicator()">
       <div class="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
         <div class="w-1 h-3 bg-white/70 rounded-full mt-2 animate-pulse"></div>
       </div>

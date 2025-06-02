@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GitHubService, GitHubStats } from '../../services/github.service';
 import { UserInteractionService } from '../../services/user-interaction.service';
@@ -17,7 +17,8 @@ export class GitHubStatsComponent implements OnInit {
 
   constructor(
     private githubService: GitHubService,
-    private userInteractionService: UserInteractionService
+    private userInteractionService: UserInteractionService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -35,12 +36,37 @@ export class GitHubStatsComponent implements OnInit {
       next: (stats) => {
         this.stats = stats;
         this.loading = false;
+        this.cdr.detectChanges(); // 手动触发变更检测
         console.log('GitHub Stats loaded:', stats);
       },
       error: (error) => {
         console.error('Failed to load GitHub stats:', error);
         this.error = true;
         this.loading = false;
+        this.cdr.detectChanges(); // 手动触发变更检测
+      }
+    });
+  }
+
+  /**
+   * 刷新GitHub数据
+   */
+  refresh() {
+    this.loading = true;
+    this.error = false;
+
+    this.githubService.refreshStats().subscribe({
+      next: (stats) => {
+        this.stats = stats;
+        this.loading = false;
+        this.cdr.detectChanges(); // 手动触发变更检测
+        console.log('GitHub Stats refreshed:', stats);
+      },
+      error: (error) => {
+        console.error('Failed to refresh GitHub stats:', error);
+        this.error = true;
+        this.loading = false;
+        this.cdr.detectChanges(); // 手动触发变更检测
       }
     });
   }
@@ -101,10 +127,5 @@ export class GitHubStatsComponent implements OnInit {
     return colors[language] || '#8b949e';
   }
 
-  /**
-   * 重新加载数据
-   */
-  refresh() {
-    this.loadGitHubStats();
-  }
+
 }

@@ -49,6 +49,16 @@ header {
       transform: translateY(0);
     }
   }
+
+  // 天气组件容器
+  .weather-container {
+    @apply relative flex items-center;
+
+    // 确保天气组件在展开时不影响布局
+    app-weather-widget {
+      @apply relative z-50;
+    }
+  }
 }
 
 // Mobile menu animations

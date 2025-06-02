@@ -1,0 +1,431 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+.music-player {
+  @apply fixed bottom-4 right-4 z-50;
+  
+  &.expanded {
+    @apply fixed inset-0 z-50;
+    @apply bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900;
+    @apply backdrop-blur-lg;
+  }
+}
+
+// 迷你播放器
+.mini-player {
+  @apply flex items-center gap-3 p-3 rounded-2xl;
+  @apply bg-white/10 backdrop-blur-md border border-white/20;
+  @apply shadow-xl hover:shadow-2xl transition-all duration-300;
+  @apply min-w-80 max-w-96;
+
+  .track-info {
+    @apply flex items-center gap-3 flex-1 min-w-0;
+
+    img {
+      @apply w-12 h-12 rounded-lg object-cover;
+      @apply ring-2 ring-white/20;
+    }
+
+    .info {
+      @apply flex-1 min-w-0;
+
+      h4 {
+        @apply text-white font-medium text-sm truncate;
+      }
+
+      p {
+        @apply text-white/70 text-xs truncate;
+      }
+    }
+  }
+
+  .controls {
+    @apply flex items-center gap-2;
+
+    .control-btn, .expand-btn {
+      @apply w-8 h-8 flex items-center justify-center rounded-full;
+      @apply text-white/70 hover:text-white hover:bg-white/10;
+      @apply transition-all duration-200;
+
+      svg {
+        @apply w-4 h-4;
+      }
+    }
+
+    .play-btn {
+      @apply w-10 h-10 flex items-center justify-center rounded-full;
+      @apply bg-white/20 hover:bg-white/30 text-white;
+      @apply transition-all duration-200;
+      @apply relative;
+
+      svg {
+        @apply w-5 h-5;
+      }
+
+      .loading-spinner {
+        @apply absolute inset-0 flex items-center justify-center;
+
+        .spinner {
+          @apply w-4 h-4 border-2 border-white/30 border-t-white;
+          @apply rounded-full animate-spin;
+        }
+      }
+    }
+  }
+}
+
+// 全屏播放器
+.full-player {
+  @apply w-full h-full flex flex-col;
+  @apply text-white;
+
+  .player-header {
+    @apply flex items-center justify-between p-6;
+    @apply border-b border-white/10;
+
+    .close-btn, .playlist-btn {
+      @apply w-10 h-10 flex items-center justify-center rounded-full;
+      @apply text-white/70 hover:text-white hover:bg-white/10;
+      @apply transition-all duration-200;
+
+      svg {
+        @apply w-6 h-6;
+      }
+    }
+
+    h2 {
+      @apply text-xl font-semibold;
+    }
+  }
+
+  .player-content {
+    @apply flex-1 flex flex-col items-center justify-center p-8;
+    @apply max-w-md mx-auto w-full;
+
+    .album-art {
+      @apply mb-8;
+
+      img {
+        @apply w-64 h-64 rounded-2xl object-cover;
+        @apply shadow-2xl ring-4 ring-white/20;
+        @apply transform hover:scale-105 transition-transform duration-300;
+      }
+    }
+
+    .track-details {
+      @apply text-center mb-8;
+
+      h3 {
+        @apply text-2xl font-bold mb-2;
+      }
+
+      .artist {
+        @apply text-lg text-white/80 mb-1;
+      }
+
+      .album {
+        @apply text-white/60;
+      }
+    }
+
+    .progress-section {
+      @apply w-full mb-8;
+
+      .time-display {
+        @apply flex justify-between text-sm text-white/70 mb-2;
+      }
+
+      .progress-bar {
+        @apply relative h-2 bg-white/20 rounded-full cursor-pointer;
+        @apply hover:h-3 transition-all duration-200;
+
+        .progress-bg {
+          @apply absolute inset-0 rounded-full;
+        }
+
+        .progress-fill {
+          @apply absolute left-0 top-0 h-full bg-gradient-to-r from-purple-400 to-pink-400;
+          @apply rounded-full transition-all duration-100;
+        }
+
+        .progress-handle {
+          @apply absolute top-1/2 w-4 h-4 bg-white rounded-full;
+          @apply transform -translate-x-1/2 -translate-y-1/2;
+          @apply shadow-lg opacity-0 hover:opacity-100 transition-opacity duration-200;
+        }
+
+        &:hover .progress-handle {
+          @apply opacity-100;
+        }
+      }
+    }
+
+    .player-controls {
+      @apply flex items-center gap-6 mb-8;
+
+      .control-btn {
+        @apply w-12 h-12 flex items-center justify-center rounded-full;
+        @apply text-white/70 hover:text-white hover:bg-white/10;
+        @apply transition-all duration-200;
+
+        svg {
+          @apply w-6 h-6;
+        }
+      }
+
+      .play-btn.large {
+        @apply w-16 h-16 flex items-center justify-center rounded-full;
+        @apply bg-gradient-to-r from-purple-500 to-pink-500;
+        @apply hover:from-purple-600 hover:to-pink-600;
+        @apply text-white shadow-xl;
+        @apply transition-all duration-200 transform hover:scale-105;
+        @apply relative;
+
+        svg {
+          @apply w-8 h-8;
+        }
+
+        .loading-spinner {
+          @apply absolute inset-0 flex items-center justify-center;
+
+          .spinner {
+            @apply w-6 h-6 border-2 border-white/30 border-t-white;
+            @apply rounded-full animate-spin;
+          }
+        }
+      }
+    }
+
+    .volume-section {
+      @apply flex items-center gap-3 w-full max-w-xs;
+
+      .volume-btn {
+        @apply w-8 h-8 flex items-center justify-center;
+        @apply text-white/70 hover:text-white;
+        @apply transition-colors duration-200;
+
+        svg {
+          @apply w-5 h-5;
+        }
+      }
+
+      .volume-slider {
+        @apply flex-1 h-1 bg-white/20 rounded-full;
+        @apply appearance-none cursor-pointer;
+
+        &::-webkit-slider-thumb {
+          @apply appearance-none w-4 h-4 bg-white rounded-full;
+          @apply shadow-lg cursor-pointer;
+        }
+
+        &::-moz-range-thumb {
+          @apply w-4 h-4 bg-white rounded-full border-none;
+          @apply shadow-lg cursor-pointer;
+        }
+      }
+    }
+  }
+}
+
+// 播放列表侧边栏
+.playlist-sidebar {
+  @apply fixed right-0 top-0 h-full w-80;
+  @apply bg-black/50 backdrop-blur-md border-l border-white/10;
+  @apply transform translate-x-full transition-transform duration-300;
+  @apply overflow-hidden;
+
+  &.show {
+    @apply translate-x-0;
+  }
+
+  .playlist-header {
+    @apply flex items-center justify-between p-6 border-b border-white/20;
+    
+    h3 {
+      @apply text-white text-lg font-semibold;
+    }
+    
+    .close-btn {
+      @apply w-8 h-8 flex items-center justify-center rounded-full;
+      @apply text-white/70 hover:text-white hover:bg-white/10;
+      @apply transition-all duration-200;
+      
+      svg {
+        @apply w-5 h-5;
+      }
+    }
+  }
+
+  // 搜索区域
+  .search-section {
+    @apply p-4 border-b border-white/10;
+
+    .search-box {
+      @apply relative flex items-center bg-white/10 rounded-full overflow-hidden;
+      @apply transition-all duration-300;
+
+      &:focus-within {
+        @apply bg-white/15 ring-2 ring-purple-400/50;
+      }
+
+      input {
+        @apply flex-1 bg-transparent border-none px-4 py-3 text-white text-sm;
+        @apply placeholder-white/60 outline-none;
+      }
+
+      .search-btn, .clear-btn {
+        @apply w-10 h-10 flex items-center justify-center;
+        @apply text-white/70 hover:text-white transition-colors duration-200;
+        @apply bg-transparent border-none cursor-pointer;
+
+        &:disabled {
+          @apply opacity-50 cursor-not-allowed;
+        }
+
+        svg {
+          @apply w-4 h-4;
+        }
+
+        .loading-spinner.small {
+          @apply w-4 h-4;
+
+          .spinner {
+            @apply w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin;
+          }
+        }
+      }
+    }
+  }
+
+  .playlist-content {
+    @apply h-full overflow-y-auto;
+
+    // 搜索结果样式
+    .search-results, .current-playlist {
+      h4 {
+        @apply text-white/80 text-sm font-medium px-4 py-2 border-b border-white/10;
+      }
+    }
+
+    .track-list {
+      @apply p-4 space-y-2;
+
+      .track-item {
+        @apply flex items-center gap-3 p-3 rounded-lg;
+        @apply hover:bg-white/10 cursor-pointer;
+        @apply transition-all duration-200;
+
+        &.active {
+          @apply bg-white/20 ring-2 ring-purple-400;
+        }
+
+        &.search-result {
+          @apply hover:bg-purple-500/20;
+        }
+
+        img {
+          @apply w-12 h-12 rounded-lg object-cover;
+        }
+
+        .track-info {
+          @apply flex-1 min-w-0;
+
+          h4 {
+            @apply text-white font-medium text-sm truncate;
+          }
+
+          p {
+            @apply text-white/70 text-xs truncate;
+          }
+
+          .album {
+            @apply text-white/50 text-xs truncate block;
+          }
+        }
+
+        .track-actions {
+          @apply flex items-center gap-2;
+
+          .action-btn {
+            @apply w-8 h-8 flex items-center justify-center rounded-full;
+            @apply text-white/60 hover:text-white hover:bg-white/20;
+            @apply transition-all duration-200 bg-transparent border-none cursor-pointer;
+
+            svg {
+              @apply w-4 h-4;
+            }
+          }
+        }
+
+        .track-duration {
+          @apply text-white/50 text-xs;
+        }
+      }
+    }
+  }
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .music-player.expanded {
+    .full-player .player-content {
+      @apply p-4;
+
+      .album-art img {
+        @apply w-48 h-48;
+      }
+
+      .track-details h3 {
+        @apply text-xl;
+      }
+    }
+  }
+
+  .playlist-sidebar {
+    @apply w-full;
+  }
+
+  .mini-player {
+    @apply min-w-0 max-w-none mx-4;
+  }
+}
+
+// VIP音乐提示样式
+.vip-tip {
+  @apply mb-5 p-5 rounded-xl;
+  @apply bg-gradient-to-r from-red-500 to-orange-500;
+  @apply border border-white/20 shadow-xl;
+
+  .vip-tip-content {
+    h4 {
+      @apply text-white text-lg font-semibold mb-3;
+      @apply drop-shadow-lg;
+    }
+
+    p {
+      @apply text-white/90 text-sm mb-3 leading-relaxed;
+    }
+
+    ol {
+      @apply text-white/90 text-sm mb-4 pl-5 space-y-2;
+
+      li {
+        @apply leading-relaxed;
+
+        a {
+          @apply text-white font-medium underline;
+          @apply hover:text-yellow-200 transition-colors duration-200;
+        }
+      }
+    }
+
+    .close-tip-btn {
+      @apply bg-white/20 hover:bg-white/30;
+      @apply text-white border border-white/30;
+      @apply px-4 py-2 rounded-lg text-sm font-medium;
+      @apply transition-all duration-200 cursor-pointer;
+      @apply hover:transform hover:scale-105;
+    }
+  }
+}

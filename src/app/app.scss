@@ -1,0 +1,22 @@
+/* App Container Styles */
+.app-container {
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Main Content Styles */
+.main-content {
+  padding-top: 80px; /* 为固定头部留出空间 */
+}
+
+/* 确保第一个section不被头部遮挡 */
+.main-content > section:first-child {
+  padding-top: 0; /* 移除额外的padding，因为main-content已经有了 */
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .main-content {
+    padding-top: 70px; /* 移动端稍微减少一些 */
+  }
+}

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, inject, ElementRef, ViewChild, PLATFORM_ID, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, ElementRef, ViewChild, PLATFORM_ID, Inject, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { gsap } from 'gsap';
 import { DailyQuoteComponent } from '../daily-quote/daily-quote.component';
@@ -19,6 +19,7 @@ export class Hero implements OnInit, OnDestroy {
   // Signals for reactive state
   isLoaded = signal(false);
   currentText = signal(0);
+  showScrollIndicator = signal(true);
 
   // Dynamic text rotation
   heroTexts = [
@@ -31,8 +32,13 @@ export class Hero implements OnInit, OnDestroy {
   // Animation timeline
   private tl?: gsap.core.Timeline;
   private textInterval?: number;
+  private scrollIndicatorTimeout?: number;
 
-  constructor(@Inject(PLATFORM_ID) platformId: Object) {
+  constructor(
+    @Inject(PLATFORM_ID) platformId: Object,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
+  ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
 
@@ -40,6 +46,7 @@ export class Hero implements OnInit, OnDestroy {
     if (this.isBrowser) {
       this.initAnimations();
       this.startTextRotation();
+      this.setupScrollIndicatorHiding();
     }
   }
 
@@ -49,6 +56,9 @@ export class Hero implements OnInit, OnDestroy {
     }
     if (this.textInterval) {
       clearInterval(this.textInterval);
+    }
+    if (this.scrollIndicatorTimeout) {
+      clearTimeout(this.scrollIndicatorTimeout);
     }
   }
 
@@ -99,9 +109,11 @@ export class Hero implements OnInit, OnDestroy {
     if (!this.isBrowser) return;
 
     this.textInterval = window.setInterval(() => {
-      this.currentText.update(current =>
-        (current + 1) % this.heroTexts.length
-      );
+      this.ngZone.run(() => {
+        this.currentText.update(current =>
+          (current + 1) % this.heroTexts.length
+        );
+      });
     }, 3000);
   }
 
@@ -120,5 +132,32 @@ export class Hero implements OnInit, OnDestroy {
   downloadCV() {
     // Implement CV download logic
     console.log('下载简历');
+  }
+
+  private setupScrollIndicatorHiding() {
+    if (!this.isBrowser) return;
+
+    // 3秒后隐藏滚动指示器
+    this.scrollIndicatorTimeout = window.setTimeout(() => {
+      this.ngZone.run(() => {
+        this.showScrollIndicator.set(false);
+        console.log('🕐 Auto-hiding scroll indicator after 3 seconds');
+      });
+    }, 3000);
+
+    // 监听滚动事件，如果用户开始滚动也隐藏指示器
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        this.ngZone.run(() => {
+          this.showScrollIndicator.set(false);
+        });
+        window.removeEventListener('scroll', handleScroll);
+        if (this.scrollIndicatorTimeout) {
+          clearTimeout(this.scrollIndicatorTimeout);
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
   }
 }

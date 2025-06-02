@@ -129,3 +129,91 @@ body {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* Cursor Styles */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+.cursor-grab {
+  cursor: grab;
+}
+
+.cursor-grabbing {
+  cursor: grabbing;
+}
+
+.cursor-crosshair {
+  cursor: crosshair;
+}
+
+.cursor-help {
+  cursor: help;
+}
+
+.cursor-wait {
+  cursor: wait;
+}
+
+.cursor-text {
+  cursor: text;
+}
+
+.cursor-move {
+  cursor: move;
+}
+
+.cursor-zoom-in {
+  cursor: zoom-in;
+}
+
+.cursor-zoom-out {
+  cursor: zoom-out;
+}
+
+/* Interactive Elements */
+button, .btn, [role="button"] {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+button:disabled, .btn:disabled, [role="button"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+a, .link {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+input, textarea, select {
+  cursor: text;
+}
+
+input[type="checkbox"], input[type="radio"] {
+  cursor: pointer;
+}
+
+/* Game specific cursors */
+.game-target {
+  cursor: crosshair;
+}
+
+.game-clickable {
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.game-clickable:hover {
+  transform: scale(1.05);
+}
+
+.game-disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

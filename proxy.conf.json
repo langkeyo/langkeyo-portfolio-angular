@@ -1,0 +1,29 @@
+{
+  "/api/music/*": {
+    "target": "https://netease-cloud-music-api-tau-seven.vercel.app",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/api/music": ""
+    }
+  },
+  "/api/jamendo/*": {
+    "target": "https://api.jamendo.com/v3.0",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/api/jamendo": ""
+    }
+  },
+  "/api/qq/*": {
+    "target": "http://localhost:3001",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/api/qq": ""
+    }
+  }
+}

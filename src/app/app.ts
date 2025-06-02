@@ -5,6 +5,11 @@ import { Hero } from './components/hero/hero';
 import { About } from './components/about/about';
 import { Projects } from './components/projects/projects';
 import { Contact } from './components/contact/contact';
+import { MusicPlayerComponent } from './components/music-player/music-player.component';
+import { AiEnhancedSkillsComponent } from './components/ai-enhanced-skills/ai-enhanced-skills.component';
+import { AiEnhancedProjectsComponent } from './components/ai-enhanced-projects/ai-enhanced-projects.component';
+import { MiniGamesComponent } from './components/mini-games/mini-games.component';
+
 
 @Component({
   selector: 'app-root',
@@ -14,7 +19,11 @@ import { Contact } from './components/contact/contact';
     Hero,
     About,
     Projects,
-    Contact
+    Contact,
+    MusicPlayerComponent,
+    AiEnhancedSkillsComponent,
+    AiEnhancedProjectsComponent,
+    MiniGamesComponent
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss'

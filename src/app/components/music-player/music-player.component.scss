@@ -1,74 +1,141 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
-
 .music-player {
-  @apply fixed bottom-4 right-4 z-50;
-  
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 50;
+
   &.expanded {
-    @apply fixed inset-0 z-50;
-    @apply bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900;
-    @apply backdrop-blur-lg;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: linear-gradient(to bottom right, rgb(88 28 135), rgb(30 58 138), rgb(67 56 202));
+    backdrop-filter: blur(16px);
   }
 }
 
 // 迷你播放器
 .mini-player {
-  @apply flex items-center gap-3 p-3 rounded-2xl;
-  @apply bg-white/10 backdrop-blur-md border border-white/20;
-  @apply shadow-xl hover:shadow-2xl transition-all duration-300;
-  @apply min-w-80 max-w-96;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  transition: all 0.3s;
+  min-width: 20rem;
+  max-width: 24rem;
+
+  &:hover {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  }
 
   .track-info {
-    @apply flex items-center gap-3 flex-1 min-w-0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0;
 
     img {
-      @apply w-12 h-12 rounded-lg object-cover;
-      @apply ring-2 ring-white/20;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 0.5rem;
+      object-fit: cover;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
     }
 
     .info {
-      @apply flex-1 min-w-0;
+      flex: 1;
+      min-width: 0;
 
       h4 {
-        @apply text-white font-medium text-sm truncate;
+        color: white;
+        font-weight: 500;
+        font-size: 0.875rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       p {
-        @apply text-white/70 text-xs truncate;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.75rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
     }
   }
 
   .controls {
-    @apply flex items-center gap-2;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 
     .control-btn, .expand-btn {
-      @apply w-8 h-8 flex items-center justify-center rounded-full;
-      @apply text-white/70 hover:text-white hover:bg-white/10;
-      @apply transition-all duration-200;
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      color: rgba(255, 255, 255, 0.7);
+      transition: all 0.2s;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+
+      &:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+      }
 
       svg {
-        @apply w-4 h-4;
+        width: 1rem;
+        height: 1rem;
       }
     }
 
     .play-btn {
-      @apply w-10 h-10 flex items-center justify-center rounded-full;
-      @apply bg-white/20 hover:bg-white/30 text-white;
-      @apply transition-all duration-200;
-      @apply relative;
+      width: 2.5rem;
+      height: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      transition: all 0.2s;
+      position: relative;
+      border: none;
+      cursor: pointer;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
 
       svg {
-        @apply w-5 h-5;
+        width: 1.25rem;
+        height: 1.25rem;
       }
 
       .loading-spinner {
-        @apply absolute inset-0 flex items-center justify-center;
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
         .spinner {
-          @apply w-4 h-4 border-2 border-white/30 border-t-white;
-          @apply rounded-full animate-spin;
+          width: 1rem;
+          height: 1rem;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-top-color: white;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
         }
       }
     }
@@ -77,151 +144,287 @@
 
 // 全屏播放器
 .full-player {
-  @apply w-full h-full flex flex-col;
-  @apply text-white;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  color: white;
 
   .player-header {
-    @apply flex items-center justify-between p-6;
-    @apply border-b border-white/10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
     .close-btn, .playlist-btn {
-      @apply w-10 h-10 flex items-center justify-center rounded-full;
-      @apply text-white/70 hover:text-white hover:bg-white/10;
-      @apply transition-all duration-200;
+      width: 2.5rem;
+      height: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      color: rgba(255, 255, 255, 0.7);
+      transition: all 0.2s;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+
+      &:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+      }
 
       svg {
-        @apply w-6 h-6;
+        width: 1.5rem;
+        height: 1.5rem;
       }
     }
 
     h2 {
-      @apply text-xl font-semibold;
+      font-size: 1.25rem;
+      font-weight: 600;
     }
   }
 
   .player-content {
-    @apply flex-1 flex flex-col items-center justify-center p-8;
-    @apply max-w-md mx-auto w-full;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    max-width: 28rem;
+    margin: 0 auto;
+    width: 100%;
 
     .album-art {
-      @apply mb-8;
+      margin-bottom: 2rem;
 
       img {
-        @apply w-64 h-64 rounded-2xl object-cover;
-        @apply shadow-2xl ring-4 ring-white/20;
-        @apply transform hover:scale-105 transition-transform duration-300;
+        width: 16rem;
+        height: 16rem;
+        border-radius: 1rem;
+        object-fit: cover;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
+        transition: transform 0.3s;
+
+        &:hover {
+          transform: scale(1.05);
+        }
       }
     }
 
     .track-details {
-      @apply text-center mb-8;
+      text-align: center;
+      margin-bottom: 2rem;
 
       h3 {
-        @apply text-2xl font-bold mb-2;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
       }
 
       .artist {
-        @apply text-lg text-white/80 mb-1;
+        font-size: 1.125rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 0.25rem;
       }
 
       .album {
-        @apply text-white/60;
+        color: rgba(255, 255, 255, 0.6);
       }
     }
 
     .progress-section {
-      @apply w-full mb-8;
+      width: 100%;
+      margin-bottom: 2rem;
 
       .time-display {
-        @apply flex justify-between text-sm text-white/70 mb-2;
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 0.5rem;
       }
 
       .progress-bar {
-        @apply relative h-2 bg-white/20 rounded-full cursor-pointer;
-        @apply hover:h-3 transition-all duration-200;
+        position: relative;
+        height: 0.5rem;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 9999px;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover {
+          height: 0.75rem;
+        }
 
         .progress-bg {
-          @apply absolute inset-0 rounded-full;
+          position: absolute;
+          inset: 0;
+          border-radius: 9999px;
         }
 
         .progress-fill {
-          @apply absolute left-0 top-0 h-full bg-gradient-to-r from-purple-400 to-pink-400;
-          @apply rounded-full transition-all duration-100;
+          position: absolute;
+          left: 0;
+          top: 0;
+          height: 100%;
+          background: linear-gradient(to right, rgb(196 181 253), rgb(244 114 182));
+          border-radius: 9999px;
+          transition: all 0.1s;
         }
 
         .progress-handle {
-          @apply absolute top-1/2 w-4 h-4 bg-white rounded-full;
-          @apply transform -translate-x-1/2 -translate-y-1/2;
-          @apply shadow-lg opacity-0 hover:opacity-100 transition-opacity duration-200;
+          position: absolute;
+          top: 50%;
+          width: 1rem;
+          height: 1rem;
+          background: white;
+          border-radius: 50%;
+          transform: translateX(-50%) translateY(-50%);
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+          opacity: 0;
+          transition: opacity 0.2s;
         }
 
         &:hover .progress-handle {
-          @apply opacity-100;
+          opacity: 1;
         }
       }
     }
 
     .player-controls {
-      @apply flex items-center gap-6 mb-8;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
 
       .control-btn {
-        @apply w-12 h-12 flex items-center justify-center rounded-full;
-        @apply text-white/70 hover:text-white hover:bg-white/10;
-        @apply transition-all duration-200;
+        width: 3rem;
+        height: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        color: rgba(255, 255, 255, 0.7);
+        transition: all 0.2s;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+
+        &:hover {
+          color: white;
+          background: rgba(255, 255, 255, 0.1);
+        }
 
         svg {
-          @apply w-6 h-6;
+          width: 1.5rem;
+          height: 1.5rem;
         }
       }
 
       .play-btn.large {
-        @apply w-16 h-16 flex items-center justify-center rounded-full;
-        @apply bg-gradient-to-r from-purple-500 to-pink-500;
-        @apply hover:from-purple-600 hover:to-pink-600;
-        @apply text-white shadow-xl;
-        @apply transition-all duration-200 transform hover:scale-105;
-        @apply relative;
+        width: 4rem;
+        height: 4rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: linear-gradient(to right, rgb(168 85 247), rgb(236 72 153));
+        color: white;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        transition: all 0.2s;
+        position: relative;
+        border: none;
+        cursor: pointer;
+
+        &:hover {
+          background: linear-gradient(to right, rgb(147 51 234), rgb(219 39 119));
+          transform: scale(1.05);
+        }
 
         svg {
-          @apply w-8 h-8;
+          width: 2rem;
+          height: 2rem;
         }
 
         .loading-spinner {
-          @apply absolute inset-0 flex items-center justify-center;
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
 
           .spinner {
-            @apply w-6 h-6 border-2 border-white/30 border-t-white;
-            @apply rounded-full animate-spin;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
           }
         }
       }
     }
 
     .volume-section {
-      @apply flex items-center gap-3 w-full max-w-xs;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      max-width: 20rem;
 
       .volume-btn {
-        @apply w-8 h-8 flex items-center justify-center;
-        @apply text-white/70 hover:text-white;
-        @apply transition-colors duration-200;
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.7);
+        transition: color 0.2s;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+
+        &:hover {
+          color: white;
+        }
 
         svg {
-          @apply w-5 h-5;
+          width: 1.25rem;
+          height: 1.25rem;
         }
       }
 
       .volume-slider {
-        @apply flex-1 h-1 bg-white/20 rounded-full;
-        @apply appearance-none cursor-pointer;
+        flex: 1;
+        height: 0.25rem;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 9999px;
+        appearance: none;
+        cursor: pointer;
 
         &::-webkit-slider-thumb {
-          @apply appearance-none w-4 h-4 bg-white rounded-full;
-          @apply shadow-lg cursor-pointer;
+          appearance: none;
+          width: 1rem;
+          height: 1rem;
+          background: white;
+          border-radius: 50%;
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+          cursor: pointer;
         }
 
         &::-moz-range-thumb {
-          @apply w-4 h-4 bg-white rounded-full border-none;
-          @apply shadow-lg cursor-pointer;
+          width: 1rem;
+          height: 1rem;
+          background: white;
+          border-radius: 50%;
+          border: none;
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+          cursor: pointer;
         }
       }
     }
@@ -230,68 +433,130 @@
 
 // 播放列表侧边栏
 .playlist-sidebar {
-  @apply fixed right-0 top-0 h-full w-80;
-  @apply bg-black/50 backdrop-blur-md border-l border-white/10;
-  @apply transform translate-x-full transition-transform duration-300;
-  @apply overflow-hidden;
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 20rem;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  transform: translateX(100%);
+  transition: transform 0.3s;
+  overflow: hidden;
 
   &.show {
-    @apply translate-x-0;
+    transform: translateX(0);
   }
 
   .playlist-header {
-    @apply flex items-center justify-between p-6 border-b border-white/20;
-    
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+
     h3 {
-      @apply text-white text-lg font-semibold;
+      color: white;
+      font-size: 1.125rem;
+      font-weight: 600;
     }
-    
+
     .close-btn {
-      @apply w-8 h-8 flex items-center justify-center rounded-full;
-      @apply text-white/70 hover:text-white hover:bg-white/10;
-      @apply transition-all duration-200;
-      
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      color: rgba(255, 255, 255, 0.7);
+      transition: all 0.2s;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+
+      &:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
       svg {
-        @apply w-5 h-5;
+        width: 1.25rem;
+        height: 1.25rem;
       }
     }
   }
 
   // 搜索区域
   .search-section {
-    @apply p-4 border-b border-white/10;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
     .search-box {
-      @apply relative flex items-center bg-white/10 rounded-full overflow-hidden;
-      @apply transition-all duration-300;
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      overflow: hidden;
+      transition: all 0.3s;
 
       &:focus-within {
-        @apply bg-white/15 ring-2 ring-purple-400/50;
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.5);
       }
 
       input {
-        @apply flex-1 bg-transparent border-none px-4 py-3 text-white text-sm;
-        @apply placeholder-white/60 outline-none;
+        flex: 1;
+        background: transparent;
+        border: none;
+        padding: 0.75rem 1rem;
+        color: white;
+        font-size: 0.875rem;
+        outline: none;
+
+        &::placeholder {
+          color: rgba(255, 255, 255, 0.6);
+        }
       }
 
       .search-btn, .clear-btn {
-        @apply w-10 h-10 flex items-center justify-center;
-        @apply text-white/70 hover:text-white transition-colors duration-200;
-        @apply bg-transparent border-none cursor-pointer;
+        width: 2.5rem;
+        height: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.7);
+        transition: color 0.2s;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+
+        &:hover {
+          color: white;
+        }
 
         &:disabled {
-          @apply opacity-50 cursor-not-allowed;
+          opacity: 0.5;
+          cursor: not-allowed;
         }
 
         svg {
-          @apply w-4 h-4;
+          width: 1rem;
+          height: 1rem;
         }
 
         .loading-spinner.small {
-          @apply w-4 h-4;
+          width: 1rem;
+          height: 1rem;
 
           .spinner {
-            @apply w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
           }
         }
       }
@@ -299,67 +564,117 @@
   }
 
   .playlist-content {
-    @apply h-full overflow-y-auto;
+    height: 100%;
+    overflow-y: auto;
 
     // 搜索结果样式
     .search-results, .current-playlist {
       h4 {
-        @apply text-white/80 text-sm font-medium px-4 py-2 border-b border-white/10;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.875rem;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       }
     }
 
     .track-list {
-      @apply p-4 space-y-2;
+      padding: 1rem;
 
       .track-item {
-        @apply flex items-center gap-3 p-3 rounded-lg;
-        @apply hover:bg-white/10 cursor-pointer;
-        @apply transition-all duration-200;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 0.5rem;
 
-        &.active {
-          @apply bg-white/20 ring-2 ring-purple-400;
+        &:hover {
+          background: rgba(255, 255, 255, 0.1);
         }
 
-        &.search-result {
-          @apply hover:bg-purple-500/20;
+        &.active {
+          background: rgba(255, 255, 255, 0.2);
+          box-shadow: 0 0 0 2px rgb(168 85 247);
+        }
+
+        &.search-result:hover {
+          background: rgba(168, 85, 247, 0.2);
         }
 
         img {
-          @apply w-12 h-12 rounded-lg object-cover;
+          width: 3rem;
+          height: 3rem;
+          border-radius: 0.5rem;
+          object-fit: cover;
         }
 
         .track-info {
-          @apply flex-1 min-w-0;
+          flex: 1;
+          min-width: 0;
 
           h4 {
-            @apply text-white font-medium text-sm truncate;
+            color: white;
+            font-weight: 500;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
 
           p {
-            @apply text-white/70 text-xs truncate;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.75rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
 
           .album {
-            @apply text-white/50 text-xs truncate block;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
           }
         }
 
         .track-actions {
-          @apply flex items-center gap-2;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
 
           .action-btn {
-            @apply w-8 h-8 flex items-center justify-center rounded-full;
-            @apply text-white/60 hover:text-white hover:bg-white/20;
-            @apply transition-all duration-200 bg-transparent border-none cursor-pointer;
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            color: rgba(255, 255, 255, 0.6);
+            transition: all 0.2s;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+
+            &:hover {
+              color: white;
+              background: rgba(255, 255, 255, 0.2);
+            }
 
             svg {
-              @apply w-4 h-4;
+              width: 1rem;
+              height: 1rem;
             }
           }
         }
 
         .track-duration {
-          @apply text-white/50 text-xs;
+          color: rgba(255, 255, 255, 0.5);
+          font-size: 0.75rem;
         }
       }
     }
@@ -370,62 +685,98 @@
 @media (max-width: 768px) {
   .music-player.expanded {
     .full-player .player-content {
-      @apply p-4;
+      padding: 1rem;
 
       .album-art img {
-        @apply w-48 h-48;
+        width: 12rem;
+        height: 12rem;
       }
 
       .track-details h3 {
-        @apply text-xl;
+        font-size: 1.25rem;
       }
     }
   }
 
   .playlist-sidebar {
-    @apply w-full;
+    width: 100%;
   }
 
   .mini-player {
-    @apply min-w-0 max-w-none mx-4;
+    min-width: 0;
+    max-width: none;
+    margin: 0 1rem;
   }
 }
 
 // VIP音乐提示样式
 .vip-tip {
-  @apply mb-5 p-5 rounded-xl;
-  @apply bg-gradient-to-r from-red-500 to-orange-500;
-  @apply border border-white/20 shadow-xl;
+  margin-bottom: 1.25rem;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(to right, rgb(239 68 68), rgb(249 115 22));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 
   .vip-tip-content {
     h4 {
-      @apply text-white text-lg font-semibold mb-3;
-      @apply drop-shadow-lg;
+      color: white;
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      filter: drop-shadow(0 10px 8px rgb(0 0 0 / 0.04));
     }
 
     p {
-      @apply text-white/90 text-sm mb-3 leading-relaxed;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+      line-height: 1.625;
     }
 
     ol {
-      @apply text-white/90 text-sm mb-4 pl-5 space-y-2;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+      padding-left: 1.25rem;
 
       li {
-        @apply leading-relaxed;
+        line-height: 1.625;
+        margin-bottom: 0.5rem;
 
         a {
-          @apply text-white font-medium underline;
-          @apply hover:text-yellow-200 transition-colors duration-200;
+          color: white;
+          font-weight: 500;
+          text-decoration: underline;
+          transition: color 0.2s;
+
+          &:hover {
+            color: rgb(254 240 138);
+          }
         }
       }
     }
 
     .close-tip-btn {
-      @apply bg-white/20 hover:bg-white/30;
-      @apply text-white border border-white/30;
-      @apply px-4 py-2 rounded-lg text-sm font-medium;
-      @apply transition-all duration-200 cursor-pointer;
-      @apply hover:transform hover:scale-105;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      cursor: pointer;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+      }
     }
   }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

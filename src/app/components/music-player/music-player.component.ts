@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { QqMusicClientService, Song } from '../../services/qq-music-client.service';
 
 interface Track {
   id: string;
@@ -48,7 +49,10 @@ export class MusicPlayerComponent implements OnInit, OnDestroy {
   private audio: HTMLAudioElement | null = null;
   private animationFrame: number | null = null;
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private qqMusicService: QqMusicClientService
+  ) {}
 
   ngOnInit() {
     this.initializeAudio();
@@ -254,31 +258,15 @@ export class MusicPlayerComponent implements OnInit, OnDestroy {
 
     try {
       console.log(`🔍 搜索音乐: ${this.searchQuery}`);
-      const response = await fetch(`http://localhost:3001/search?key=${encodeURIComponent(this.searchQuery)}&pageNo=1&pageSize=20`);
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('🔍 搜索响应数据:', data);
+      // 首先尝试使用本地服务器（如果可用）
+      const isLocalServerAvailable = await this.checkLocalServer();
 
-        // 处理新的QQ音乐API数据结构
-        if (data.code === 0 && data.data && data.data.list && data.data.list.length > 0) {
-          this.searchResults = data.data.list.map((song: any) => ({
-            id: song.songmid || song.id,
-            title: song.title,
-            artist: song.artist,
-            album: song.album,
-            duration: song.duration,
-            coverUrl: song.img || 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop',
-            audioUrl: '' // 将在播放时获取
-          }));
-          console.log(`✅ 搜索到 ${this.searchResults.length} 首歌曲`, this.searchResults);
-        } else {
-          this.searchResults = [];
-          console.log('⚠️ 没有找到匹配的歌曲');
-        }
+      if (isLocalServerAvailable) {
+        await this.searchWithLocalServer();
       } else {
-        console.error('❌ 搜索请求失败');
-        this.searchResults = [];
+        // 如果本地服务器不可用，使用客户端服务
+        await this.searchWithClientService();
       }
     } catch (error) {
       console.error('❌ 搜索出错:', error);
@@ -289,18 +277,100 @@ export class MusicPlayerComponent implements OnInit, OnDestroy {
     }
   }
 
+  private async checkLocalServer(): Promise<boolean> {
+    try {
+      const response = await fetch('http://localhost:3001/', {
+        method: 'GET',
+        signal: AbortSignal.timeout(2000) // 2秒超时
+      });
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }
+
+  private async searchWithLocalServer() {
+    try {
+      const response = await fetch(`http://localhost:3001/search?key=${encodeURIComponent(this.searchQuery)}&pageNo=1&pageSize=20`);
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('🔍 本地服务器搜索响应:', data);
+
+        if (data.code === 0 && data.data && data.data.list && data.data.list.length > 0) {
+          this.searchResults = data.data.list.map((song: any) => ({
+            id: song.songmid || song.id,
+            title: song.title,
+            artist: song.artist,
+            album: song.album,
+            duration: song.duration,
+            coverUrl: song.img || 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop',
+            audioUrl: ''
+          }));
+          console.log(`✅ 本地服务器搜索到 ${this.searchResults.length} 首歌曲`);
+        }
+      }
+    } catch (error) {
+      console.error('❌ 本地服务器搜索失败:', error);
+      await this.searchWithClientService();
+    }
+  }
+
+  private async searchWithClientService() {
+    try {
+      console.log('🌐 使用客户端服务搜索...');
+      this.qqMusicService.searchMusic(this.searchQuery, 1, 20).subscribe({
+        next: (result) => {
+          if (result.code === 0 && result.data.list.length > 0) {
+            this.searchResults = result.data.list.map((song: Song) => ({
+              id: song.id,
+              title: song.title,
+              artist: song.artist,
+              album: song.album,
+              duration: song.duration,
+              coverUrl: song.img,
+              audioUrl: ''
+            }));
+            console.log(`✅ 客户端搜索到 ${this.searchResults.length} 首歌曲`);
+          } else {
+            this.searchResults = [];
+            console.log('⚠️ 客户端搜索没有找到匹配的歌曲');
+          }
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          console.error('❌ 客户端搜索失败:', error);
+          this.searchResults = [];
+          this.cdr.markForCheck();
+        }
+      });
+    } catch (error) {
+      console.error('❌ 客户端搜索出错:', error);
+      this.searchResults = [];
+    }
+  }
+
   // 播放搜索结果中的歌曲
   async playSearchResult(track: Track) {
     console.log(`🎵 播放搜索结果: ${track.title}`);
 
-    // 获取播放URL
+    // 首先检查本地服务器是否可用
+    const isLocalServerAvailable = await this.checkLocalServer();
+
+    if (isLocalServerAvailable) {
+      await this.playWithLocalServer(track);
+    } else {
+      await this.playWithClientService(track);
+    }
+  }
+
+  private async playWithLocalServer(track: Track) {
     try {
       const response = await fetch(`http://localhost:3001/song/urls?id=${track.id}`);
       if (response.ok) {
         const data = await response.json();
         let playUrl = null;
 
-        // QQ音乐API返回格式: { "songmid": "播放链接" }
         if (data[track.id]) {
           playUrl = data[track.id];
         } else if (data.result && data.result[track.id]) {
@@ -311,37 +381,57 @@ export class MusicPlayerComponent implements OnInit, OnDestroy {
           playUrl = data.url;
         }
 
-        console.log(`✅ 播放链接结果:`, data);
-        console.log(`🎧 提取的播放URL: ${playUrl}`);
-
         if (playUrl && playUrl !== '') {
-          // 对于QQ音乐链接，使用代理
           const proxyUrl = `http://localhost:3001/proxy/audio?url=${encodeURIComponent(playUrl)}`;
           track.audioUrl = proxyUrl;
-          console.log(`🎧 使用代理URL播放真实QQ音乐: ${proxyUrl}`);
-
-          // 创建新的Audio对象来避免CORS问题
-          console.log(`🔄 创建新的Audio对象以避免CORS问题`);
-          this.cleanup(); // 清理旧的audio对象
-          this.initializeAudio(); // 创建新的audio对象
-
-          this.currentTrack = track;
-          this.currentIndex = 0;
-          this.playlist = [track]; // 临时播放列表
-          this.play();
-          console.log(`✅ 开始播放: ${track.title}`);
+          console.log(`🎧 使用本地服务器播放: ${track.title}`);
+          this.startPlayback(track);
         } else {
-          console.error(`❌ 无法获取 ${track.title} 的播放URL`);
-          console.warn(`💡 提示: 如果这是VIP音乐，可能需要特殊的解密处理`);
-          console.warn(`🔗 VIP音乐解密工具: https://um-react.netlify.app/`);
-
-          // 显示用户友好的提示
-          this.showVipMusicTip(track);
+          console.warn(`⚠️ 本地服务器无法获取播放链接，尝试客户端服务`);
+          await this.playWithClientService(track);
         }
       }
     } catch (error) {
-      console.error(`❌ 获取播放URL失败:`, error);
+      console.error(`❌ 本地服务器播放失败:`, error);
+      await this.playWithClientService(track);
     }
+  }
+
+  private async playWithClientService(track: Track) {
+    try {
+      console.log('🌐 使用客户端服务获取播放链接...');
+      this.qqMusicService.getSongUrl(track.id).subscribe({
+        next: (playUrl) => {
+          if (playUrl) {
+            track.audioUrl = playUrl;
+            console.log(`🎧 使用客户端服务播放: ${track.title}`);
+            this.startPlayback(track);
+          } else {
+            console.warn(`❌ 无法获取 ${track.title} 的播放URL`);
+            this.showVipMusicTip(track);
+          }
+        },
+        error: (error) => {
+          console.error(`❌ 客户端服务获取播放链接失败:`, error);
+          this.showVipMusicTip(track);
+        }
+      });
+    } catch (error) {
+      console.error(`❌ 客户端服务播放失败:`, error);
+      this.showVipMusicTip(track);
+    }
+  }
+
+  private startPlayback(track: Track) {
+    // 创建新的Audio对象来避免CORS问题
+    this.cleanup();
+    this.initializeAudio();
+
+    this.currentTrack = track;
+    this.currentIndex = 0;
+    this.playlist = [track]; // 临时播放列表
+    this.play();
+    console.log(`✅ 开始播放: ${track.title}`);
   }
 
 

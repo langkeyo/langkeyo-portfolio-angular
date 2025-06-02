@@ -112,14 +112,14 @@ export class WeatherService {
         position => {
           const location: GeolocationData = {
             latitude: position.coords.latitude,
-            longitude: position.coords.longitude
+            longitude: position.coords.longitude,
+            city: '当前位置',
+            country: ''
           };
-          
-          // 尝试获取城市名称
-          this.getCityName(location).subscribe(cityData => {
-            observer.next({ ...location, ...cityData });
-            observer.complete();
-          });
+
+          console.log('Got user location:', location);
+          observer.next(location);
+          observer.complete();
         },
         error => {
           console.warn('Geolocation error, using default location:', error);
@@ -134,38 +134,7 @@ export class WeatherService {
     });
   }
 
-  /**
-   * 根据坐标获取城市名称
-   */
-  private getCityName(location: GeolocationData): Observable<Partial<GeolocationData>> {
-    const params = {
-      latitude: location.latitude.toString(),
-      longitude: location.longitude.toString(),
-      count: '1',
-      language: 'zh',
-      format: 'json'
-    };
 
-    const queryString = new URLSearchParams(params).toString();
-    
-    return this.http.get<any>(`${this.geocodingApiUrl}/search?${queryString}`)
-      .pipe(
-        map(response => {
-          if (response.results && response.results.length > 0) {
-            const result = response.results[0];
-            return {
-              city: result.name || '未知城市',
-              country: result.country || '未知国家'
-            };
-          }
-          return { city: '未知城市', country: '未知国家' };
-        }),
-        catchError(error => {
-          console.warn('Failed to get city name:', error);
-          return of({ city: '未知城市', country: '未知国家' });
-        })
-      );
-  }
 
   /**
    * 解析天气API响应

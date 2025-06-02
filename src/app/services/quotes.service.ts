@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 export interface Quote {
   _id?: string;
@@ -21,6 +23,8 @@ export interface ZenQuote {
   providedIn: 'root'
 })
 export class QuotesService {
+  private readonly adviceApiUrl = 'https://api.adviceslip.com/advice';
+
   // 精选名言库（设计、励志、智慧）
   private readonly fallbackQuotes: Quote[] = [
     // 设计相关名言
@@ -189,12 +193,50 @@ export class QuotesService {
     }
   ];
 
-  constructor() {}
+  constructor(private http: HttpClient) {}
 
   /**
-   * 获取随机名言 (使用本地名言库，避免CORS问题)
+   * 获取随机名言 (优先使用在线API，失败时使用本地库)
    */
   getRandomQuote(): Observable<Quote> {
+    // 随机决定是否尝试在线API（30%概率）
+    if (Math.random() < 0.3) {
+      return this.getOnlineAdvice().pipe(
+        catchError(error => {
+          console.warn('Online advice failed, using local quote:', error);
+          return this.getLocalQuote();
+        })
+      );
+    }
+
+    return this.getLocalQuote();
+  }
+
+  /**
+   * 获取在线建议 (使用Advice Slip API)
+   */
+  private getOnlineAdvice(): Observable<Quote> {
+    return this.http.get<{slip: {id: number, advice: string}}>(`${this.adviceApiUrl}`)
+      .pipe(
+        map(response => ({
+          _id: `advice-${response.slip.id}`,
+          content: response.slip.advice,
+          author: 'Advice Slip',
+          tags: ['advice', 'wisdom'],
+          authorSlug: 'advice-slip',
+          length: response.slip.advice.length
+        })),
+        catchError(error => {
+          console.warn('Failed to fetch online advice:', error);
+          throw error;
+        })
+      );
+  }
+
+  /**
+   * 获取本地名言
+   */
+  private getLocalQuote(): Observable<Quote> {
     const randomIndex = Math.floor(Math.random() * this.fallbackQuotes.length);
     const quote = this.fallbackQuotes[randomIndex];
     console.log('Using local quote:', quote);

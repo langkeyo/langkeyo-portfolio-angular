@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.js"
+    }
+  ],
+  "env": {
+    "QQ_MUSIC_COOKIE": "RK=ab9QGFd+wQ; ptcz=e94994051efde8b20517d2e4121a301c59e59f8d408452c173fce5de132a41a5; pgv_pvid=574510342; fqm_pvqid=23a6beb5-8a9b-4e68-82aa-d927ef325392; fqm_sessionid=f47e28eb-6c11-4de3-80be-9f2c8c6b1ebd; pgv_info=ssid=s3512205230; ts_uid=3539329950; _qpsvr_localtk=0.3818803016933282; login_type=1; psrf_qqunionid=C0F222D1051F980B640220A2F28382EF; qqmusic_key=Q_H_L_63k3N2L72wf4_1ATr-UiapDekOHqqIrF1gajrzdTka371FdSdqmK9bAGN_eBmEwJ-RgunofdRVyLSpMsopAHxZvlymaU; euin=owCzNe4soiE57v**; wxunionid=; psrf_qqrefresh_token=F4F1B747D31420233B19733A6E2BE226; music_ignore_pskey=202306271436Hn@vBj; psrf_qqopenid=A75C77C7C22D1E6A334A2C1B242B7F8F; psrf_qqaccess_token=697E873EB6D414B6814C7131E17A4ADB; psrf_access_token_expiresAt=1754039989; tmeLoginType=2; psrf_musickey_createtime=1748855989; wxopenid=; uin=2608563915; wxrefresh_token=; qm_keyst=Q_H_L_63k3N2L72wf4_1ATr-UiapDekOHqqIrF1gajrzdTka371FdSdqmK9bAGN_eBmEwJ-RgunofdRVyLSpMsopAHxZvlymaU; ts_refer=www.google.com/; yqq_stat=0; ct=11; cv=11; ts_last=y.qq.com/n/ryqq/profile"
+  }
+}

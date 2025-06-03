@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HuggingFaceService } from '../../services/hugging-face.service';
@@ -34,9 +34,16 @@ export class AiTextGeneratorComponent implements OnInit {
     article: ['人工智能的发展', '环保的重要性', '健康生活方式']
   };
 
-  constructor(private huggingFaceService: HuggingFaceService) {}
+  constructor(
+    private huggingFaceService: HuggingFaceService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {}
+
+  setSelectedType(value: string): void {
+    this.selectedType = value as 'creative' | 'code' | 'poem' | 'story' | 'article';
+  }
 
   generateText(): void {
     if (!this.prompt.trim() || this.isGenerating) {
@@ -56,11 +63,13 @@ export class AiTextGeneratorComponent implements OnInit {
       next: (text) => {
         this.generatedText = text;
         this.isGenerating = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('文本生成失败:', error);
         this.generatedText = '抱歉，文本生成失败，请稍后重试。';
         this.isGenerating = false;
+        this.cdr.detectChanges();
       }
     });
   }

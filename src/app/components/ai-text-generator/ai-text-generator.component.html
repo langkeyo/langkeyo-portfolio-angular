@@ -12,7 +12,7 @@
         *ngFor="let type of textTypes" 
         class="type-card"
         [class.active]="selectedType === type.value"
-        (click)="selectedType = type.value">
+        (click)="setSelectedType(type.value)">
         <div class="type-icon">{{ type.icon }}</div>
         <div class="type-label">{{ type.label }}</div>
         <div class="type-description">{{ type.description }}</div>

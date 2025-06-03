@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HuggingFaceService } from '../../services/hugging-face.service';
+import { GeminiService } from '../../services/gemini.service';
 
 @Component({
   selector: 'app-ai-text-generator',
@@ -35,7 +35,7 @@ export class AiTextGeneratorComponent implements OnInit {
   };
 
   constructor(
-    private huggingFaceService: HuggingFaceService,
+    private geminiService: GeminiService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -54,12 +54,12 @@ export class AiTextGeneratorComponent implements OnInit {
     this.generatedText = '';
 
     const options = {
-      maxLength: this.maxLength,
+      maxTokens: this.maxLength,
       temperature: this.temperature,
       type: this.selectedType
     };
 
-    this.huggingFaceService.generateText(this.prompt, options).subscribe({
+    this.geminiService.generateText(this.prompt, options).subscribe({
       next: (text) => {
         this.generatedText = text;
         this.isGenerating = false;

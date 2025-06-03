@@ -154,6 +154,53 @@ export class GeminiService {
   }
 
   /**
+   * 生成文本内容 - 用于AI文本生成器
+   */
+  generateText(prompt: string, options: {
+    maxTokens?: number;
+    temperature?: number;
+    type?: 'creative' | 'code' | 'poem' | 'story' | 'article';
+  } = {}): Observable<string> {
+    const { maxTokens = 1000, temperature = 0.7, type = 'creative' } = options;
+
+    // 根据类型优化提示词
+    const enhancedPrompt = this.enhancePromptByType(prompt, type);
+
+    console.log('🤖 使用Gemini生成文本:', enhancedPrompt);
+
+    if (!this.apiKey || this.apiKey.trim() === '') {
+      console.warn('⚠️ Gemini API Key 未配置，使用模拟数据');
+      return this.generateMockText(prompt, type, maxTokens);
+    }
+
+    const payload = {
+      contents: [{ role: "user", parts: [{ text: enhancedPrompt }] }],
+      generationConfig: {
+        temperature: temperature,
+        maxOutputTokens: maxTokens,
+        topK: 40,
+        topP: 0.95
+      }
+    };
+
+    return this.http.post(`${this.baseUrl}?key=${this.apiKey}`, payload).pipe(
+      map((response: any) => {
+        if (response.candidates?.[0]?.content?.parts?.[0]?.text) {
+          const generatedText = response.candidates[0].content.parts[0].text;
+          console.log('✅ Gemini文本生成成功');
+          return generatedText.trim();
+        }
+        throw new Error('Invalid API response structure');
+      }),
+      catchError(error => {
+        console.error('❌ Gemini文本生成失败:', error);
+        console.log('🎭 使用模拟数据');
+        return this.generateMockText(prompt, type, maxTokens);
+      })
+    );
+  }
+
+  /**
    * 调用 Gemini API 的核心方法
    */
   private callGeminiAPI(prompt: string, responseSchema: any): Observable<any> {
@@ -439,5 +486,177 @@ export class GeminiService {
         "tags": { "type": "ARRAY", "items": { "type": "STRING" } }
       }
     };
+  }
+
+  /**
+   * 根据类型增强提示词 - 用于文本生成
+   */
+  private enhancePromptByType(prompt: string, type: string): string {
+    // 简单的中英文映射
+    const chineseToEnglish: { [key: string]: string } = {
+      '兔子': 'rabbit, cute bunny',
+      '猫': 'cat, cute kitten',
+      '狗': 'dog, cute puppy',
+      '鸟': 'bird, beautiful bird',
+      '花': 'flower, beautiful flower',
+      '树': 'tree, beautiful tree',
+      '山': 'mountain, landscape',
+      '海': 'ocean, sea',
+      '天空': 'sky, clouds',
+      '房子': 'house, building',
+      '汽车': 'car, vehicle',
+      '人': 'person, human',
+      '女孩': 'girl, young woman',
+      '男孩': 'boy, young man',
+      '风景': 'landscape, scenery',
+      '城市': 'city, urban landscape'
+    };
+
+    // 检查是否包含中文，如果有则尝试翻译
+    let translatedPrompt = prompt;
+    for (const [chinese, english] of Object.entries(chineseToEnglish)) {
+      if (prompt.includes(chinese)) {
+        translatedPrompt = translatedPrompt.replace(chinese, english);
+      }
+    }
+
+    const typePrompts = {
+      'creative': `请创作一段富有创意和吸引力的文本，主题是：${translatedPrompt}。要求内容生动有趣，富有想象力。`,
+      'code': `请生成干净、有注释的代码，需求是：${translatedPrompt}。请包含必要的说明和最佳实践。`,
+      'poem': `请创作一首优美的诗歌，主题是：${translatedPrompt}。要求有韵律感和诗意。`,
+      'story': `请讲述一个有趣的故事，主题是：${translatedPrompt}。要求情节生动，有吸引力。`,
+      'article': `请写一篇信息丰富的文章，主题是：${translatedPrompt}。要求内容详实，逻辑清晰。`
+    };
+
+    return typePrompts[type as keyof typeof typePrompts] || `请围绕以下主题创作内容：${translatedPrompt}`;
+  }
+
+  /**
+   * 生成模拟文本数据
+   */
+  private generateMockText(prompt: string, type: string, maxTokens: number): Observable<string> {
+    return new Observable<string>(observer => {
+      setTimeout(() => {
+        const mockTexts = {
+          'creative': `关于"${prompt}"的创意思考：
+
+在这个充满无限可能的世界里，${prompt}就像是一颗闪亮的星星，照亮着我们前进的道路。它不仅仅是一个简单的概念，更是一种生活的态度，一种对美好未来的憧憬。
+
+当我们深入思考${prompt}时，会发现它蕴含着丰富的内涵和深刻的意义。它提醒我们要保持好奇心，勇于探索未知的领域，用创新的思维去解决问题。
+
+让我们一起拥抱${prompt}，用它来点亮我们的生活，创造更美好的明天！`,
+
+          'code': `// ${prompt} 实现示例
+/**
+ * ${prompt} 相关功能实现
+ * 这是一个展示最佳实践的代码示例
+ */
+
+class ${prompt.replace(/\s+/g, '')}Manager {
+  private data: any[] = [];
+
+  constructor() {
+    this.initialize();
+  }
+
+  /**
+   * 初始化方法
+   */
+  private initialize(): void {
+    console.log('正在初始化 ${prompt} 管理器...');
+    // 在这里添加初始化逻辑
+  }
+
+  /**
+   * 主要处理方法
+   * @param input 输入参数
+   * @returns 处理结果
+   */
+  public process(input: string): string {
+    try {
+      // 处理逻辑
+      const result = this.handleInput(input);
+      return result;
+    } catch (error) {
+      console.error('处理失败:', error);
+      throw error;
+    }
+  }
+
+  private handleInput(input: string): string {
+    // 具体实现逻辑
+    return \`处理结果: \${input}\`;
+  }
+}
+
+// 使用示例
+const manager = new ${prompt.replace(/\s+/g, '')}Manager();
+const result = manager.process('测试数据');
+console.log(result);`,
+
+          'poem': `《${prompt}》
+
+轻风拂过心田，
+${prompt}如诗如画展现。
+时光荏苒岁月流，
+美好回忆永相伴。
+
+晨曦初露照大地，
+${prompt}带来新希望。
+心中有梦不言弃，
+勇敢前行向远方。
+
+星辰点缀夜空美，
+${prompt}如歌声悠扬。
+愿君常怀赤子心，
+生活处处有阳光。`,
+
+          'story': `${prompt}的故事
+
+很久很久以前，在一个遥远的地方，有一个关于${prompt}的美丽传说。
+
+故事的主人公是一个充满好奇心的年轻人，他对${prompt}有着特殊的感情。每当夜深人静的时候，他总是会想起${prompt}带给他的那些美好回忆。
+
+有一天，他决定踏上一段寻找${prompt}真正意义的旅程。路上他遇到了各种各样的人和事，每一次经历都让他对${prompt}有了更深的理解。
+
+经过漫长的旅程，他终于明白了${prompt}的真正价值。它不在于外在的形式，而在于内心的感受和体验。从那以后，他带着这份珍贵的领悟，继续着自己的人生旅程。
+
+这个故事告诉我们，${prompt}的意义往往需要我们用心去体会和发现。`,
+
+          'article': `深入理解${prompt}
+
+引言
+${prompt}作为一个重要的概念，在现代社会中扮演着越来越重要的角色。本文将从多个角度深入分析${prompt}的特点、应用和发展趋势。
+
+主要特点
+${prompt}具有以下几个显著特点：
+1. 创新性：${prompt}代表着新的思维方式和解决方案
+2. 实用性：在实际应用中展现出强大的价值
+3. 可扩展性：具有良好的发展潜力和适应性
+
+应用领域
+${prompt}在多个领域都有广泛的应用：
+- 技术领域：推动技术创新和发展
+- 教育领域：提供新的学习方法和工具
+- 商业领域：创造新的商业模式和机会
+
+发展趋势
+随着时代的发展，${prompt}将会：
+1. 更加智能化和自动化
+2. 与其他技术深度融合
+3. 在更多领域发挥重要作用
+
+结论
+${prompt}作为一个具有重要意义的概念，值得我们深入研究和应用。通过不断的探索和实践，我们可以更好地发挥其价值，为社会发展做出贡献。`
+        };
+
+        const selectedText = mockTexts[type as keyof typeof mockTexts] || mockTexts.creative;
+        const truncatedText = selectedText.length > maxTokens ?
+          selectedText.substring(0, maxTokens) + '...' : selectedText;
+
+        observer.next(truncatedText);
+        observer.complete();
+      }, 1500 + Math.random() * 1000); // 1.5-2.5秒延迟
+    });
   }
 }

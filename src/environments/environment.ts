@@ -28,6 +28,11 @@ export const environment = {
         textGeneration: 'distilgpt2',
         imageToText: 'Salesforce/blip-image-captioning-base'
       }
+    },
+    gemini: {
+      apiKey: '', // 在本地开发时手动设置，或使用环境变量
+      baseUrl: 'https://generativelanguage.googleapis.com/v1beta/models',
+      model: 'gemini-1.5-flash'
     }
   },
   

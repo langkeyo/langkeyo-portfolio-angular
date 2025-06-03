@@ -236,6 +236,34 @@ export class HuggingFaceService {
    * 根据风格构建完整提示词
    */
   private buildPromptWithStyle(prompt: string, style: string): string {
+    // 简单的中英文映射
+    const chineseToEnglish: { [key: string]: string } = {
+      '兔子': 'rabbit, cute bunny',
+      '猫': 'cat, cute kitten',
+      '狗': 'dog, cute puppy',
+      '鸟': 'bird, beautiful bird',
+      '花': 'flower, beautiful flower',
+      '树': 'tree, beautiful tree',
+      '山': 'mountain, landscape',
+      '海': 'ocean, sea',
+      '天空': 'sky, clouds',
+      '房子': 'house, building',
+      '汽车': 'car, vehicle',
+      '人': 'person, human',
+      '女孩': 'girl, young woman',
+      '男孩': 'boy, young man',
+      '风景': 'landscape, scenery',
+      '城市': 'city, urban landscape'
+    };
+
+    // 检查是否包含中文，如果有则尝试翻译
+    let translatedPrompt = prompt;
+    for (const [chinese, english] of Object.entries(chineseToEnglish)) {
+      if (prompt.includes(chinese)) {
+        translatedPrompt = translatedPrompt.replace(chinese, english);
+      }
+    }
+
     const stylePrompts = {
       'realistic': 'photorealistic, high quality, detailed, 8k resolution',
       'cartoon': 'cartoon style, colorful, fun, animated',
@@ -246,7 +274,7 @@ export class HuggingFaceService {
     };
 
     const styleText = stylePrompts[style as keyof typeof stylePrompts] || stylePrompts['realistic'];
-    return `${prompt}, ${styleText}`;
+    return `${translatedPrompt}, ${styleText}`;
   }
 
   /**

@@ -125,6 +125,244 @@ app.post('/api/search', async (req, res) => {
   }
 });
 
+// 兼容Angular应用的GET搜索接口
+app.get('/search', async (req, res) => {
+  try {
+    const { key: keyword, pageNo = 1, pageSize = 20 } = req.query;
+
+    if (!keyword) {
+      return res.json({
+        code: -1,
+        message: '搜索关键词不能为空'
+      });
+    }
+
+    console.log(`🔍 GET代理搜索: ${keyword}`);
+
+    const searchData = {
+      comm: {
+        ct: '19',
+        cv: '1859',
+        uin: '0',
+      },
+      req: {
+        method: 'DoSearchForQQMusicDesktop',
+        module: 'music.search.SearchCgiService',
+        param: {
+          grp: 1,
+          num_per_page: parseInt(pageSize),
+          page_num: parseInt(pageNo),
+          query: keyword,
+          search_type: 0,
+        },
+      },
+    };
+
+    const response = await axios.post('https://u.y.qq.com/cgi-bin/musicu.fcg', searchData, {
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Referer': 'https://y.qq.com/',
+        'Origin': 'https://y.qq.com',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        'Cookie': QQ_MUSIC_COOKIE
+      },
+      timeout: 10000
+    });
+
+    const data = response.data;
+
+    if (!data.req || !data.req.data || !data.req.data.body) {
+      return res.json({
+        code: 0,
+        data: {
+          list: [],
+          total: 0,
+          pageNo: parseInt(pageNo),
+          pageSize: parseInt(pageSize)
+        }
+      });
+    }
+
+    // 转换为标准格式
+    const songs = data.req.data.body.song.list.map(song => ({
+      id: song.mid,
+      title: htmlDecode(song.name),
+      artist: htmlDecode(song.singer[0].name),
+      album: htmlDecode(song.album.name),
+      duration: song.interval,
+      img: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${song.album.mid}.jpg`,
+      albumId: song.album.mid,
+      artistId: song.singer[0].mid,
+      songmid: song.mid
+    }));
+
+    const result = {
+      code: 0,
+      data: {
+        list: songs,
+        total: data.req.data.meta.sum,
+        pageNo: parseInt(pageNo),
+        pageSize: parseInt(pageSize)
+      }
+    };
+
+    console.log(`✅ GET代理搜索成功，返回 ${songs.length} 首歌曲`);
+    res.json(result);
+
+  } catch (error) {
+    console.error('❌ GET代理搜索失败:', error.message);
+    res.status(500).json({
+      code: -1,
+      message: '搜索失败',
+      error: error.message
+    });
+  }
+});
+
+// 兼容Angular应用的GET播放链接接口
+app.get('/song/urls', async (req, res) => {
+  try {
+    const { id: songmid } = req.query;
+
+    if (!songmid) {
+      return res.json({
+        code: -1,
+        message: '歌曲ID不能为空'
+      });
+    }
+
+    console.log(`🎵 GET代理获取播放链接: ${songmid}`);
+
+    const guid = Math.floor(Math.random() * 10000000000);
+
+    const data = {
+      req_0: {
+        module: "vkey.GetVkeyServer",
+        method: "CgiGetVkey",
+        param: {
+          guid: guid.toString(),
+          songmid: [songmid],
+          songtype: [0],
+          uin: "0",
+          loginflag: 1,
+          platform: "20"
+        }
+      },
+      comm: {
+        uin: 0,
+        format: "json",
+        ct: 24,
+        cv: 0
+      }
+    };
+
+    const sign = generateSimpleSign(JSON.stringify(data));
+    const url = `https://u.y.qq.com/cgi-bin/musicu.fcg?sign=${sign}&_=${Date.now()}`;
+
+    const response = await axios.post(url, data, {
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Referer': 'https://y.qq.com/',
+        'Origin': 'https://y.qq.com',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        'Cookie': QQ_MUSIC_COOKIE
+      },
+      timeout: 10000
+    });
+
+    const result = response.data;
+
+    if (result.req_0 && result.req_0.data) {
+      const data = result.req_0.data;
+
+      if (data.midurlinfo && data.midurlinfo[0]) {
+        const purl = data.midurlinfo[0].purl;
+        if (purl) {
+          const playUrl = `http://ws.stream.qqmusic.qq.com/${purl}`;
+          console.log(`✅ GET代理获取播放链接成功: ${songmid}`);
+          return res.json({
+            [songmid]: playUrl,
+            url: playUrl
+          });
+        }
+      }
+
+      if (data.testfilewifi || data.testfile2g) {
+        const testUrl = data.testfilewifi || data.testfile2g;
+        if (testUrl.includes('?')) {
+          const playUrl = `http://ws.stream.qqmusic.qq.com/${testUrl}`;
+          console.log(`✅ GET代理获取测试链接成功: ${songmid}`);
+          return res.json({
+            [songmid]: playUrl,
+            url: playUrl
+          });
+        }
+      }
+    }
+
+    console.log(`⚠️ GET代理无法获取播放链接: ${songmid}`);
+    res.json({
+      [songmid]: null,
+      url: null
+    });
+
+  } catch (error) {
+    console.error('❌ GET代理获取播放链接失败:', error.message);
+    res.status(500).json({
+      code: -1,
+      message: '获取播放链接失败',
+      error: error.message
+    });
+  }
+});
+
+// 音频代理接口
+app.get('/proxy/audio', async (req, res) => {
+  try {
+    const { url } = req.query;
+
+    if (!url) {
+      return res.status(400).json({ error: '缺少URL参数' });
+    }
+
+    console.log(`🎧 代理音频: ${url}`);
+
+    const response = await axios.get(url, {
+      responseType: 'stream',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Referer': 'https://y.qq.com/',
+        'Accept': 'audio/*,*/*;q=0.9',
+        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        'Cookie': QQ_MUSIC_COOKIE
+      },
+      timeout: 30000
+    });
+
+    // 设置响应头
+    res.set({
+      'Content-Type': response.headers['content-type'] || 'audio/mpeg',
+      'Content-Length': response.headers['content-length'],
+      'Accept-Ranges': 'bytes',
+      'Cache-Control': 'public, max-age=3600',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+      'Access-Control-Allow-Headers': 'Range, Content-Range, Content-Length'
+    });
+
+    // 管道传输音频数据
+    response.data.pipe(res);
+
+  } catch (error) {
+    console.error('❌ 音频代理失败:', error.message);
+    res.status(500).json({ error: '音频代理失败' });
+  }
+});
+
 // 获取播放链接代理
 app.post('/api/song/url', async (req, res) => {
   try {

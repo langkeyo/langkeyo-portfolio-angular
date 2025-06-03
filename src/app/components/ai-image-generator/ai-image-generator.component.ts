@@ -2,6 +2,7 @@ import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { HuggingFaceService, ImageGenerationResult } from '../../services/hugging-face.service';
 
 interface GenerationResult {
   success: boolean;
@@ -109,13 +110,12 @@ export class AiImageGeneratorComponent {
   error: string | null = null;
   imageHistory: Array<{prompt: string, imageUrl: string, timestamp: Date}> = [];
 
-  // Hugging Face API配置
-  private readonly HF_API_URL = 'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0';
-  private readonly HF_API_KEY = 'hf_your_api_key_here'; // 需要替换为真实的API Key
+
 
   constructor(
     private http: HttpClient,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private huggingFaceService: HuggingFaceService
   ) {
     this.loadImageHistory();
   }
@@ -128,78 +128,38 @@ export class AiImageGeneratorComponent {
     this.generatedImage = null;
 
     try {
-      // 构建完整的提示词
-      const fullPrompt = this.buildFullPrompt();
-      
-      // 调用Hugging Face API
-      const result = await this.callHuggingFaceAPI(fullPrompt);
-      
-      if (result.success && result.imageUrl) {
-        this.generatedImage = result.imageUrl;
-        this.addToHistory(this.prompt, result.imageUrl);
-      } else {
-        this.error = result.error || '生成失败，请重试';
-      }
+      console.log('🎨 开始生成图像:', this.prompt);
+
+      // 使用Hugging Face服务生成图像
+      this.huggingFaceService.generateImage(this.prompt, this.selectedStyle).subscribe({
+        next: (result: ImageGenerationResult) => {
+          if (result.success && result.imageUrl) {
+            this.generatedImage = result.imageUrl;
+            this.addToHistory(this.prompt, result.imageUrl);
+            console.log('✅ 图像生成成功');
+          } else {
+            this.error = result.error || '生成失败，请重试';
+            console.error('❌ 图像生成失败:', result.error);
+          }
+          this.isGenerating = false;
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          console.error('❌ 图像生成错误:', error);
+          this.error = error.error || error.message || '网络错误，请检查连接后重试';
+          this.isGenerating = false;
+          this.cdr.markForCheck();
+        }
+      });
     } catch (error) {
-      console.error('图像生成错误:', error);
-      this.error = '网络错误，请检查连接后重试';
-    } finally {
+      console.error('❌ 图像生成异常:', error);
+      this.error = '生成过程中发生错误，请重试';
       this.isGenerating = false;
       this.cdr.markForCheck();
     }
   }
 
-  private buildFullPrompt(): string {
-    const stylePrompts = {
-      'realistic': 'photorealistic, high quality, detailed',
-      'cartoon': 'cartoon style, colorful, fun',
-      'anime': 'anime style, manga, japanese art',
-      'oil-painting': 'oil painting, classical art, brushstrokes',
-      'watercolor': 'watercolor painting, soft colors, artistic',
-      'digital-art': 'digital art, modern, vibrant colors'
-    };
 
-    const styleText = stylePrompts[this.selectedStyle as keyof typeof stylePrompts] || '';
-    return `${this.prompt}, ${styleText}`;
-  }
-
-  private async callHuggingFaceAPI(prompt: string): Promise<GenerationResult> {
-    try {
-      // 由于免费API限制，这里使用模拟数据
-      // 实际使用时需要替换为真实的Hugging Face API调用
-      
-      // 模拟API延迟
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      // 返回示例图像（实际应该是API生成的图像）
-      return {
-        success: true,
-        imageUrl: `https://picsum.photos/512/512?random=${Date.now()}`
-      };
-      
-      /* 真实API调用代码（需要API Key）:
-      const response = await this.http.post(this.HF_API_URL, 
-        { inputs: prompt },
-        {
-          headers: {
-            'Authorization': `Bearer ${this.HF_API_KEY}`,
-            'Content-Type': 'application/json'
-          },
-          responseType: 'blob'
-        }
-      ).toPromise();
-
-      const imageUrl = URL.createObjectURL(response);
-      return { success: true, imageUrl };
-      */
-      
-    } catch (error) {
-      return {
-        success: false,
-        error: '生成失败，请重试'
-      };
-    }
-  }
 
   onImageLoad() {
     console.log('图像加载完成');

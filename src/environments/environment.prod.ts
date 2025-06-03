@@ -18,7 +18,16 @@ export const environment = {
       username: 'langkeyo'
     },
     qqMusic: {
-      baseUrl: 'https://your-deployed-qq-music-api.com' // 生产环境的音乐API地址
+      baseUrl: 'https://qq-music-proxy.onrender.com' // 生产环境的音乐API地址
+    },
+    huggingFace: {
+      apiKey: 'YOUR_HUGGING_FACE_TOKEN_HERE', // 替换为你的HF token
+      baseUrl: 'https://api-inference.huggingface.co/models',
+      models: {
+        imageGeneration: 'stabilityai/stable-diffusion-xl-base-1.0',
+        textGeneration: 'microsoft/DialoGPT-medium',
+        imageToText: 'Salesforce/blip-image-captioning-base'
+      }
     }
   },
   

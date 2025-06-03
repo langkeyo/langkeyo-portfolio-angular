@@ -19,6 +19,15 @@ export const environment = {
     },
     qqMusic: {
       baseUrl: 'http://localhost:3001'
+    },
+    huggingFace: {
+      apiKey: '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', // 替换为你的HF token
+      baseUrl: 'https://api-inference.huggingface.co/models',
+      models: {
+        imageGeneration: 'stabilityai/stable-diffusion-xl-base-1.0',
+        textGeneration: 'microsoft/DialoGPT-medium',
+        imageToText: 'Salesforce/blip-image-captioning-base'
+      }
     }
   },
   

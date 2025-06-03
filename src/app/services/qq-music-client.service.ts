@@ -31,6 +31,7 @@ export interface SearchResult {
 export class QqMusicClientService {
   // 代理服务器地址 - 使用多个备用服务器
   private readonly PROXY_SERVERS = [
+    'https://qq-music-proxy.onrender.com/api',  // Render部署（主要）
     'http://localhost:3001/api',  // 本地开发服务器
     'https://qq-music-proxy-production.up.railway.app/api',  // Railway部署
     'https://qq-music-proxy.vercel.app/api'  // Vercel部署

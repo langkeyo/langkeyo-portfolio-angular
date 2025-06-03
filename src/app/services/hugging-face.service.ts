@@ -4,6 +4,14 @@ import { Observable, from, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
+// 尝试导入本地配置（如果存在）
+let localConfig: any = null;
+try {
+  localConfig = require('../../environments/environment.local.ts').localConfig;
+} catch (e) {
+  // 本地配置文件不存在，使用默认配置
+}
+
 export interface ImageGenerationRequest {
   inputs: string;
   parameters?: {
@@ -25,7 +33,7 @@ export interface ImageGenerationResult {
   providedIn: 'root'
 })
 export class HuggingFaceService {
-  private readonly apiKey = environment.apis.huggingFace.apiKey;
+  private readonly apiKey = localConfig?.huggingFaceApiKey || environment.apis.huggingFace.apiKey;
   private readonly baseUrl = environment.apis.huggingFace.baseUrl;
   private readonly models = environment.apis.huggingFace.models;
 

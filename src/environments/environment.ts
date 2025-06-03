@@ -21,7 +21,7 @@ export const environment = {
       baseUrl: 'http://localhost:3001'
     },
     huggingFace: {
-      apiKey: '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', // 替换为你的HF token
+      apiKey: '', // 在本地开发时手动设置，或使用环境变量
       baseUrl: 'https://api-inference.huggingface.co/models',
       models: {
         imageGeneration: 'stabilityai/stable-diffusion-xl-base-1.0',

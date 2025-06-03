@@ -21,7 +21,7 @@ export const environment = {
       baseUrl: 'https://qq-music-proxy.onrender.com' // 生产环境的音乐API地址
     },
     huggingFace: {
-      apiKey: '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', // 替换为你的HF token
+      apiKey: '', // 生产环境使用环境变量或GitHub Secrets
       baseUrl: 'https://api-inference.huggingface.co/models',
       models: {
         imageGeneration: 'stabilityai/stable-diffusion-xl-base-1.0',

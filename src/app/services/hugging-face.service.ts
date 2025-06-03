@@ -130,38 +130,55 @@ export class HuggingFaceService {
   }
 
   /**
-   * 文本生成
+   * 文本生成 - 增强版
    */
-  generateText(prompt: string, maxLength: number = 100): Observable<string> {
+  generateText(prompt: string, options: {
+    maxLength?: number;
+    temperature?: number;
+    type?: 'creative' | 'code' | 'poem' | 'story' | 'article';
+  } = {}): Observable<string> {
     if (!this.apiKey || this.apiKey === 'YOUR_HUGGING_FACE_TOKEN_HERE') {
       return throwError(() => new Error('请先配置Hugging Face API Token'));
     }
 
+    const { maxLength = 200, temperature = 0.7, type = 'creative' } = options;
+
+    // 根据类型优化提示词
+    const enhancedPrompt = this.enhancePromptByType(prompt, type);
+
     const url = `${this.baseUrl}/${this.models.textGeneration}`;
-    
+
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.apiKey}`,
       'Content-Type': 'application/json'
     });
 
     const requestBody = {
-      inputs: prompt,
+      inputs: enhancedPrompt,
       parameters: {
         max_length: maxLength,
-        temperature: 0.7,
-        do_sample: true
+        temperature: temperature,
+        do_sample: true,
+        top_p: 0.9,
+        repetition_penalty: 1.1
       }
     };
+
+    console.log('🤖 发送文本生成请求:', enhancedPrompt);
 
     return this.http.post<any>(url, requestBody, { headers }).pipe(
       map(response => {
         if (Array.isArray(response) && response.length > 0) {
-          return response[0].generated_text || '';
+          const generatedText = response[0].generated_text || '';
+          // 清理生成的文本，移除原始提示词
+          const cleanedText = this.cleanGeneratedText(generatedText, enhancedPrompt);
+          console.log('✅ 文本生成成功');
+          return cleanedText;
         }
         return '';
       }),
       catchError(error => {
-        console.error('文本生成失败:', error);
+        console.error('❌ 文本生成失败:', error);
         return throwError(() => error);
       })
     );
@@ -287,5 +304,38 @@ export class HuggingFaceService {
       'CompVis/stable-diffusion-v1-4',
       'stabilityai/stable-diffusion-2-1'
     ];
+  }
+
+  /**
+   * 根据类型增强提示词
+   */
+  private enhancePromptByType(prompt: string, type: string): string {
+    const typePrompts = {
+      'creative': `Write a creative and engaging text about: ${prompt}`,
+      'code': `Generate clean, well-commented code for: ${prompt}`,
+      'poem': `Write a beautiful poem about: ${prompt}`,
+      'story': `Tell an interesting story about: ${prompt}`,
+      'article': `Write an informative article about: ${prompt}`
+    };
+
+    return typePrompts[type as keyof typeof typePrompts] || `Write about: ${prompt}`;
+  }
+
+  /**
+   * 清理生成的文本
+   */
+  private cleanGeneratedText(generatedText: string, originalPrompt: string): string {
+    // 移除原始提示词
+    let cleaned = generatedText.replace(originalPrompt, '').trim();
+
+    // 移除多余的空行
+    cleaned = cleaned.replace(/\n\s*\n\s*\n/g, '\n\n');
+
+    // 确保文本不为空
+    if (!cleaned) {
+      return generatedText;
+    }
+
+    return cleaned;
   }
 }

@@ -1,0 +1,117 @@
+<div class="ai-text-generator">
+  <div class="generator-header">
+    <h2>🤖 AI文本生成器</h2>
+    <p>使用人工智能生成各种类型的文本内容</p>
+  </div>
+
+  <!-- 文本类型选择 -->
+  <div class="type-selector">
+    <h3>选择生成类型</h3>
+    <div class="type-grid">
+      <div 
+        *ngFor="let type of textTypes" 
+        class="type-card"
+        [class.active]="selectedType === type.value"
+        (click)="selectedType = type.value">
+        <div class="type-icon">{{ type.icon }}</div>
+        <div class="type-label">{{ type.label }}</div>
+        <div class="type-description">{{ type.description }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 示例提示词 -->
+  <div class="example-prompts">
+    <h4>💡 示例提示词</h4>
+    <div class="prompt-chips">
+      <span 
+        *ngFor="let example of examplePrompts[selectedType]" 
+        class="prompt-chip"
+        (click)="useExamplePrompt(example)">
+        {{ example }}
+      </span>
+    </div>
+  </div>
+
+  <!-- 输入区域 -->
+  <div class="input-section">
+    <div class="input-group">
+      <label for="prompt">输入提示词</label>
+      <textarea 
+        id="prompt"
+        [(ngModel)]="prompt" 
+        placeholder="请输入您想要生成的内容描述..."
+        rows="3"
+        class="prompt-input">
+      </textarea>
+    </div>
+
+    <!-- 参数设置 -->
+    <div class="parameters">
+      <div class="param-group">
+        <label for="maxLength">最大长度: {{ maxLength }}</label>
+        <input 
+          type="range" 
+          id="maxLength"
+          [(ngModel)]="maxLength" 
+          min="50" 
+          max="500" 
+          step="50"
+          class="slider">
+      </div>
+      
+      <div class="param-group">
+        <label for="temperature">创造性: {{ temperature }}</label>
+        <input 
+          type="range" 
+          id="temperature"
+          [(ngModel)]="temperature" 
+          min="0.1" 
+          max="1.0" 
+          step="0.1"
+          class="slider">
+      </div>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="action-buttons">
+      <button 
+        (click)="generateText()" 
+        [disabled]="!prompt.trim() || isGenerating"
+        class="generate-btn">
+        <span *ngIf="!isGenerating">✨ 生成文本</span>
+        <span *ngIf="isGenerating">🔄 生成中...</span>
+      </button>
+      
+      <button 
+        (click)="clearAll()" 
+        class="clear-btn">
+        🗑️ 清空
+      </button>
+    </div>
+  </div>
+
+  <!-- 生成结果 -->
+  <div class="output-section" *ngIf="generatedText || isGenerating">
+    <div class="output-header">
+      <h3>生成结果</h3>
+      <button 
+        *ngIf="generatedText && !isGenerating" 
+        (click)="copyToClipboard()"
+        class="copy-btn">
+        📋 复制
+      </button>
+    </div>
+    
+    <div class="output-content">
+      <div *ngIf="isGenerating" class="loading">
+        <div class="loading-spinner"></div>
+        <p>AI正在思考中，请稍候...</p>
+      </div>
+      
+      <div *ngIf="generatedText && !isGenerating" class="generated-text">
+        <pre>{{ generatedText }}</pre>
+      </div>
+    </div>
+  </div>
+</div>

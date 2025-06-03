@@ -244,9 +244,9 @@ export class MusicPlayerComponent implements OnInit, OnDestroy {
 
   private async checkLocalServer(): Promise<boolean> {
     try {
-      const response = await fetch('http://localhost:3001/', {
+      const response = await fetch('https://qq-music-proxy.onrender.com/', {
         method: 'GET',
-        signal: AbortSignal.timeout(2000) // 2秒超时
+        signal: AbortSignal.timeout(5000) // 5秒超时，Render可能需要冷启动
       });
       return response.ok;
     } catch {
@@ -256,7 +256,7 @@ export class MusicPlayerComponent implements OnInit, OnDestroy {
 
   private async searchWithLocalServer() {
     try {
-      const response = await fetch(`http://localhost:3001/search?key=${encodeURIComponent(this.searchQuery)}&pageNo=1&pageSize=20`);
+      const response = await fetch(`https://qq-music-proxy.onrender.com/search?key=${encodeURIComponent(this.searchQuery)}&pageNo=1&pageSize=20`);
 
       if (response.ok) {
         const data = await response.json();
@@ -331,7 +331,7 @@ export class MusicPlayerComponent implements OnInit, OnDestroy {
 
   private async playWithLocalServer(track: Track) {
     try {
-      const response = await fetch(`http://localhost:3001/song/urls?id=${track.id}`);
+      const response = await fetch(`https://qq-music-proxy.onrender.com/song/urls?id=${track.id}`);
       if (response.ok) {
         const data = await response.json();
         let playUrl = null;
@@ -347,7 +347,7 @@ export class MusicPlayerComponent implements OnInit, OnDestroy {
         }
 
         if (playUrl && playUrl !== '') {
-          const proxyUrl = `http://localhost:3001/proxy/audio?url=${encodeURIComponent(playUrl)}`;
+          const proxyUrl = `https://qq-music-proxy.onrender.com/proxy/audio?url=${encodeURIComponent(playUrl)}`;
           track.audioUrl = proxyUrl;
           console.log(`🎧 使用本地服务器播放: ${track.title}`);
           this.startPlayback(track);

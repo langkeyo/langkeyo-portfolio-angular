@@ -62,7 +62,8 @@ export class HuggingFaceService {
     
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.apiKey}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Accept': 'image/png'
     });
 
     const requestBody: ImageGenerationRequest = {
@@ -209,7 +210,8 @@ export class HuggingFaceService {
     
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.apiKey}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Accept': 'image/png'
     });
 
     // 发送一个简单的请求来检查API状态

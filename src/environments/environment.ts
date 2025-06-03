@@ -30,9 +30,9 @@ export const environment = {
       }
     },
     gemini: {
-      apiKey: '', // 在本地开发时手动设置，或使用环境变量
+      apiKey: 'AIzaSyD5YKEgBZXtDV9dtG72bWe-EZnvaFlsSeY', // 你的AI Studio API Key
       baseUrl: 'https://generativelanguage.googleapis.com/v1beta/models',
-      model: 'gemini-1.5-flash'
+      model: 'gemini-1.5-flash-latest'
     }
   },
   

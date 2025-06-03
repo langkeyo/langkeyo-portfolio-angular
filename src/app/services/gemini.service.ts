@@ -44,8 +44,9 @@ export interface GeneratedContent {
   providedIn: 'root'
 })
 export class GeminiService {
-  private readonly apiKey = environment.geminiApiKey;
-  private readonly baseUrl = environment.geminiApiUrl;
+  private readonly apiKey = environment.apis.gemini.apiKey;
+  private readonly baseUrl = environment.apis.gemini.baseUrl;
+  private readonly model = environment.apis.gemini.model;
 
   // 缓存机制
   private skillInsightsCache = new Map<string, SkillInsight>();
@@ -166,7 +167,9 @@ export class GeminiService {
     // 根据类型优化提示词
     const enhancedPrompt = this.enhancePromptByType(prompt, type);
 
-    console.log('🤖 使用Gemini生成文本:', enhancedPrompt);
+    console.log('🤖 原始提示词:', prompt);
+    console.log('🤖 增强后提示词:', enhancedPrompt);
+    console.log('🤖 提示词长度:', enhancedPrompt.length);
 
     if (!this.apiKey || this.apiKey.trim() === '') {
       console.warn('⚠️ Gemini API Key 未配置，使用模拟数据');
@@ -174,16 +177,16 @@ export class GeminiService {
     }
 
     const payload = {
-      contents: [{ role: "user", parts: [{ text: enhancedPrompt }] }],
+      contents: [{ parts: [{ text: enhancedPrompt }] }],
       generationConfig: {
         temperature: temperature,
-        maxOutputTokens: maxTokens,
-        topK: 40,
-        topP: 0.95
+        maxOutputTokens: maxTokens
       }
     };
 
-    return this.http.post(`${this.baseUrl}?key=${this.apiKey}`, payload).pipe(
+    console.log('📤 发送的payload:', JSON.stringify(payload, null, 2));
+
+    return this.http.post(`${this.baseUrl}/${this.model}:generateContent?key=${this.apiKey}`, payload).pipe(
       map((response: any) => {
         if (response.candidates?.[0]?.content?.parts?.[0]?.text) {
           const generatedText = response.candidates[0].content.parts[0].text;
@@ -212,7 +215,7 @@ export class GeminiService {
     console.log('🤖 调用 Gemini API...', { prompt: prompt.substring(0, 100) + '...' });
 
     const payload = {
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: responseSchema,
@@ -221,7 +224,7 @@ export class GeminiService {
       }
     };
 
-    return this.http.post(`${this.baseUrl}?key=${this.apiKey}`, payload).pipe(
+    return this.http.post(`${this.baseUrl}/${this.model}:generateContent?key=${this.apiKey}`, payload).pipe(
       map((response: any) => {
         if (response.candidates?.[0]?.content?.parts?.[0]?.text) {
           return JSON.parse(response.candidates[0].content.parts[0].text);

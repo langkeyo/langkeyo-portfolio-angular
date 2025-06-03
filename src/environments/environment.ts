@@ -25,7 +25,7 @@ export const environment = {
       baseUrl: 'https://api-inference.huggingface.co/models',
       models: {
         imageGeneration: 'stabilityai/stable-diffusion-xl-base-1.0',
-        textGeneration: 'gpt2',
+        textGeneration: 'distilgpt2',
         imageToText: 'Salesforce/blip-image-captioning-base'
       }
     }

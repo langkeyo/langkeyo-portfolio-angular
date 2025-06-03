@@ -489,4 +489,5 @@ function generateSimpleSign(data) {
 app.listen(PORT, () => {
   console.log(`🎵 QQ音乐代理服务器运行在端口 ${PORT}`);
   console.log(`🌐 服务器地址: http://localhost:${PORT}`);
+  console.log(`✅ 服务器启动成功，支持GET和POST接口`);
 });

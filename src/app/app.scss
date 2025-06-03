@@ -14,9 +14,20 @@
   padding-top: 0; /* 移除额外的padding，因为main-content已经有了 */
 }
 
+/* AI Section Styles */
+.ai-section {
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
 /* 响应式调整 */
 @media (max-width: 768px) {
   .main-content {
     padding-top: 70px; /* 移动端稍微减少一些 */
+  }
+
+  .ai-section {
+    padding: 1rem 0.5rem;
   }
 }

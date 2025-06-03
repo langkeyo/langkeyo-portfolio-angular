@@ -8,6 +8,7 @@ import { Contact } from './components/contact/contact';
 import { MusicPlayerComponent } from './components/music-player/music-player.component';
 import { AiEnhancedSkillsComponent } from './components/ai-enhanced-skills/ai-enhanced-skills.component';
 import { AiEnhancedProjectsComponent } from './components/ai-enhanced-projects/ai-enhanced-projects.component';
+import { AiImageGeneratorComponent } from './components/ai-image-generator/ai-image-generator.component';
 import { MiniGamesComponent } from './components/mini-games/mini-games.component';
 
 
@@ -23,6 +24,7 @@ import { MiniGamesComponent } from './components/mini-games/mini-games.component
     MusicPlayerComponent,
     AiEnhancedSkillsComponent,
     AiEnhancedProjectsComponent,
+    AiImageGeneratorComponent,
     MiniGamesComponent
   ],
   templateUrl: './app.html',

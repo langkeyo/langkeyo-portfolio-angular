@@ -181,58 +181,23 @@ export class MusicPlayerComponent implements OnInit, OnDestroy {
       for (let i = 0; i < this.playlist.length; i++) {
         const track = this.playlist[i];
         try {
-          // 获取歌曲详细信息 - 使用jsososo的API格式
-          console.log(`📀 获取 ${track.title} 的详细信息...`);
-          const detailResponse = await fetch(`/api/qq/song?songmid=${track.id}`);
-
-          if (detailResponse.ok) {
-            const detailData = await detailResponse.json();
-            if (detailData.result && detailData.result.track_info) {
-              const songInfo = detailData.result.track_info;
-
-              // 更新歌曲信息
-              track.title = songInfo.title || track.title;
-              track.artist = songInfo.singer?.map((s: any) => s.name).join(', ') || track.artist;
-              track.album = songInfo.album?.name || track.album;
-              track.duration = songInfo.interval || track.duration;
-
-              // 更新专辑封面
-              if (songInfo.album && songInfo.album.pmid) {
-                track.coverUrl = `https://y.gtimg.cn/music/photo_new/T002R300x300M000${songInfo.album.pmid}.jpg`;
-              }
-
-              console.log(`✅ 获取到 ${track.title} 的详细信息`);
-            }
-          }
-
-          // 获取播放URL - 使用本地QQ音乐API
           console.log(`🎵 获取 ${track.title} 的播放URL...`);
-          const urlResponse = await fetch(`/api/qq/song/urls?id=${track.id}`);
 
-          if (urlResponse.ok) {
-            const urlData = await urlResponse.json();
-            console.log(`🔍 播放URL响应:`, urlData);
-
-            // 检查不同的响应格式
-            let playUrl = null;
-            if (urlData.result && urlData.result[track.id]) {
-              playUrl = urlData.result[track.id];
-            } else if (urlData.data && urlData.data.length > 0) {
-              playUrl = urlData.data[0].url;
-            } else if (urlData.url) {
-              playUrl = urlData.url;
+          // 使用新的客户端服务获取播放链接
+          this.qqMusicService.getSongUrl(track.id).subscribe({
+            next: (playUrl) => {
+              if (playUrl) {
+                track.audioUrl = playUrl;
+                console.log(`✅ 获取到 ${track.title} 的播放URL`);
+              } else {
+                console.warn(`⚠️ ${track.title} 没有可用的播放URL`);
+              }
+              this.cdr.markForCheck();
+            },
+            error: (error) => {
+              console.warn(`❌ 获取 ${track.title} 播放URL失败:`, error);
             }
-
-            if (playUrl && playUrl !== '') {
-              track.audioUrl = playUrl;
-              console.log(`✅ 获取到 ${track.title} 的播放URL: ${playUrl.substring(0, 50)}...`);
-            } else {
-              console.warn(`⚠️ ${track.title} 没有可用的播放URL，可能需要配置Cookie或会员权限`);
-              console.warn(`📋 完整响应:`, urlData);
-            }
-          } else {
-            console.error(`❌ 获取 ${track.title} 播放URL失败，HTTP状态: ${urlResponse.status}`);
-          }
+          });
 
         } catch (error) {
           console.warn(`❌ 获取 ${track.title} 数据时出错:`, error);

@@ -29,17 +29,43 @@ export interface SearchResult {
   providedIn: 'root'
 })
 export class QqMusicClientService {
-  // 代理服务器地址 - 可以部署到Vercel、Railway等免费平台
-  private readonly PROXY_API_BASE = 'https://qq-music-proxy.vercel.app/api';
-  private readonly LOCAL_PROXY_BASE = 'http://localhost:3001';
+  // 代理服务器地址 - 使用多个备用服务器
+  private readonly PROXY_SERVERS = [
+    'http://localhost:3001/api',  // 本地开发服务器
+    'https://qq-music-proxy-production.up.railway.app/api',  // Railway部署
+    'https://qq-music-proxy.vercel.app/api'  // Vercel部署
+  ];
 
   constructor(private http: HttpClient) {}
+
+  /**
+   * 尝试多个代理服务器
+   */
+  private tryProxyServers(endpoint: string, data: any): Observable<any> {
+    const tryServer = (serverIndex: number): Observable<any> => {
+      if (serverIndex >= this.PROXY_SERVERS.length) {
+        throw new Error('所有代理服务器都不可用');
+      }
+
+      const serverUrl = `${this.PROXY_SERVERS[serverIndex]}/${endpoint}`;
+      console.log(`🔄 尝试代理服务器 ${serverIndex + 1}: ${serverUrl}`);
+
+      return this.http.post<any>(serverUrl, data).pipe(
+        catchError(error => {
+          console.log(`❌ 代理服务器 ${serverIndex + 1} 失败:`, error.message);
+          return tryServer(serverIndex + 1);
+        })
+      );
+    };
+
+    return tryServer(0);
+  }
 
   /**
    * 搜索音乐 - 使用代理服务器
    */
   searchMusic(keyword: string, pageNo: number = 1, pageSize: number = 20): Observable<SearchResult> {
-    console.log(`🔍 使用代理服务器搜索: ${keyword}`);
+    console.log(`🔍 使用多个代理服务器搜索: ${keyword}`);
 
     const searchData = {
       keyword: keyword,
@@ -47,15 +73,9 @@ export class QqMusicClientService {
       pageSize: pageSize
     };
 
-    // 首先尝试本地代理服务器
-    return this.http.post<any>(`${this.LOCAL_PROXY_BASE}/api/search`, searchData).pipe(
-      catchError(() => {
-        console.log('本地代理不可用，尝试云端代理...');
-        // 如果本地代理失败，尝试云端代理
-        return this.http.post<any>(`${this.PROXY_API_BASE}/search`, searchData);
-      }),
+    return this.tryProxyServers('search', searchData).pipe(
       map(response => {
-        if (response.code === 0 && response.data.list.length > 0) {
+        if (response && response.code === 0 && response.data && response.data.list.length > 0) {
           console.log(`✅ 代理搜索成功，找到 ${response.data.list.length} 首歌曲`);
           return response;
         } else {
@@ -74,21 +94,15 @@ export class QqMusicClientService {
    * 获取歌曲播放链接 - 使用代理服务器
    */
   getSongUrl(songmid: string): Observable<string | null> {
-    console.log(`🎵 使用代理服务器获取播放链接: ${songmid}`);
+    console.log(`🎵 使用多个代理服务器获取播放链接: ${songmid}`);
 
     const requestData = {
       songmid: songmid
     };
 
-    // 首先尝试本地代理服务器
-    return this.http.post<any>(`${this.LOCAL_PROXY_BASE}/api/song/url`, requestData).pipe(
-      catchError(() => {
-        console.log('本地代理不可用，尝试云端代理...');
-        // 如果本地代理失败，尝试云端代理
-        return this.http.post<any>(`${this.PROXY_API_BASE}/song/url`, requestData);
-      }),
+    return this.tryProxyServers('song/url', requestData).pipe(
       map(response => {
-        if (response.code === 0 && response.data && response.data.url) {
+        if (response && response.code === 0 && response.data && response.data.url) {
           console.log(`✅ 代理获取播放链接成功: ${songmid}`);
           return response.data.url;
         } else {

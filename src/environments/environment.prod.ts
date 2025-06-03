@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  geminiApiKey: '', // 生产环境的 Gemini API Key
+  geminiApiKey: 'AIzaSyD5YKEgBZXtDV9dtG72bWe-EZnvaFlsSeY', // 生产环境的 Gemini API Key
   geminiApiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
   
   // 其他 API 配置
@@ -21,7 +21,7 @@ export const environment = {
       baseUrl: 'https://qq-music-proxy.onrender.com' // 生产环境的音乐API地址
     },
     huggingFace: {
-      apiKey: 'YOUR_HUGGING_FACE_TOKEN_HERE', // 替换为你的HF token
+      apiKey: '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', // 替换为你的HF token
       baseUrl: 'https://api-inference.huggingface.co/models',
       models: {
         imageGeneration: 'stabilityai/stable-diffusion-xl-base-1.0',

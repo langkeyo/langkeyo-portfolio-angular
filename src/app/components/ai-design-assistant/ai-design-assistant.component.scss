@@ -1,0 +1,375 @@
+// AI Design Assistant Component Styles
+.ai-design-assistant-section {
+  position: relative;
+  min-height: 100vh;
+  
+  // 背景动画
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, 
+      rgba(139, 92, 246, 0.1) 0%, 
+      rgba(59, 130, 246, 0.1) 50%, 
+      rgba(6, 182, 212, 0.1) 100%);
+    animation: gradientShift 10s ease-in-out infinite;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+  }
+
+  // 标题样式
+  .section-title {
+    background: linear-gradient(135deg, #8B5CF6, #3B82F6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 4px 8px rgba(139, 92, 246, 0.3);
+  }
+
+  // 功能标签样式
+  .design-tabs {
+    .tab-button {
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(139, 92, 246, 0.2);
+      }
+
+      &.active {
+        background: linear-gradient(135deg, #8B5CF6, #3B82F6);
+        color: white;
+        box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+        
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 12px 30px rgba(139, 92, 246, 0.5);
+        }
+      }
+
+      .tab-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        display: block;
+      }
+    }
+  }
+
+  // 输入区域样式
+  .input-section {
+    backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+    textarea {
+      border: 2px solid transparent;
+      background: rgba(255, 255, 255, 0.8);
+      transition: all 0.3s ease;
+
+      &:focus {
+        border-color: #8B5CF6;
+        background: rgba(255, 255, 255, 1);
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+      }
+    }
+
+    select {
+      border: 2px solid transparent;
+      background: rgba(255, 255, 255, 0.8);
+      transition: all 0.3s ease;
+      color: #374151;
+      padding: 8px 12px;
+      border-radius: 8px;
+
+      &:focus {
+        border-color: #8B5CF6;
+        background: rgba(255, 255, 255, 1);
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        outline: none;
+      }
+
+      option {
+        background: white;
+        color: #374151;
+        padding: 8px 12px;
+      }
+    }
+
+    .generate-button {
+      background: linear-gradient(135deg, #8B5CF6, #3B82F6);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+
+        &::before {
+          left: 100%;
+        }
+      }
+
+      &:disabled {
+        transform: none;
+        box-shadow: none;
+        opacity: 0.6;
+
+        &::before {
+          display: none;
+        }
+      }
+    }
+  }
+
+  // 结果展示区域
+  .results-section {
+    .result-card {
+      backdrop-filter: blur(20px);
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        border-color: rgba(139, 92, 246, 0.3);
+      }
+    }
+
+    .component-card {
+      .code-block {
+        background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+        border: 1px solid #404040;
+        position: relative;
+        
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 30px;
+          background: linear-gradient(90deg, #ff5f56, #ffbd2e, #27ca3f);
+          border-radius: 8px 8px 0 0;
+        }
+
+        pre {
+          margin-top: 30px;
+          padding-top: 1rem;
+        }
+
+        code {
+          font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+          font-size: 0.875rem;
+          line-height: 1.5;
+        }
+      }
+
+      .tag {
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1));
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.2));
+          transform: scale(1.05);
+        }
+      }
+    }
+
+    .color-palette-card {
+      .color-swatch {
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        cursor: pointer;
+
+        &:hover {
+          transform: scale(1.1);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+          border-color: rgba(255, 255, 255, 1);
+        }
+      }
+
+      .color-info {
+        font-family: 'Monaco', 'Consolas', monospace;
+        font-size: 0.75rem;
+      }
+    }
+
+    .layout-card {
+      .layout-preview {
+        background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+        border: 1px solid #e2e8f0;
+        position: relative;
+
+        &::before {
+          content: 'Preview';
+          position: absolute;
+          top: 0.5rem;
+          right: 0.5rem;
+          background: rgba(139, 92, 246, 0.1);
+          color: #8B5CF6;
+          padding: 0.25rem 0.5rem;
+          border-radius: 0.25rem;
+          font-size: 0.75rem;
+          font-weight: 600;
+        }
+      }
+
+      .responsive-badge {
+        background: linear-gradient(135deg, #10B981, #059669);
+        animation: pulse 2s infinite;
+      }
+    }
+
+    .trend-card {
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #8B5CF6, #3B82F6, #06B6D4);
+        animation: gradientMove 3s ease-in-out infinite;
+      }
+
+      .trend-tag {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(6, 182, 212, 0.1));
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(6, 182, 212, 0.2));
+          transform: scale(1.05);
+        }
+      }
+    }
+  }
+
+  // 空状态样式
+  .empty-state {
+    .empty-icon {
+      font-size: 4rem;
+      opacity: 0.7;
+      animation: float 3s ease-in-out infinite;
+    }
+  }
+
+  // 加载状态
+  .loading-spinner {
+    animation: spin 1s linear infinite;
+  }
+}
+
+// 动画定义
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .ai-design-assistant-section {
+    .design-tabs {
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .input-section {
+      .flex-row {
+        flex-direction: column;
+      }
+    }
+
+    .results-section {
+      .grid-cols-2,
+      .grid-cols-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .ai-design-assistant-section {
+    padding: 2rem 0;
+
+    .section-title {
+      font-size: 2.5rem;
+    }
+
+    .design-tabs {
+      grid-template-columns: 1fr;
+    }
+  }
+}

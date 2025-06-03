@@ -511,6 +511,297 @@ app.get('/search/hot', async (req, res) => {
   }
 });
 
+// 每日推荐 - 基于QQ音乐推荐算法
+app.get('/recommend/daily', async (req, res) => {
+  try {
+    console.log('🎵 获取QQ音乐每日推荐...');
+
+    // 使用QQ音乐的推荐API
+    const target_url = 'https://u.y.qq.com/cgi-bin/musicu.fcg';
+
+    const recommendData = {
+      comm: {
+        ct: '24',
+        cv: '0',
+        uin: qqMusic.uin || '0',
+      },
+      req_1: {
+        method: 'get_daily_recommend',
+        module: 'music.musicasset.SongFavRead',
+        param: {
+          uin: parseInt(qqMusic.uin) || 0
+        }
+      },
+      req_2: {
+        method: 'get_recommend_song',
+        module: 'music.recommend.RecommendRead',
+        param: {
+          uin: parseInt(qqMusic.uin) || 0,
+          num: 30
+        }
+      }
+    };
+
+    const response = await axios.post(target_url, recommendData, {
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Referer': 'https://y.qq.com/',
+        'Origin': 'https://y.qq.com',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        'Cookie': qqMusic.cookie || ''
+      }
+    });
+
+    const data = response.data;
+    console.log('🎵 推荐API响应:', JSON.stringify(data, null, 2));
+
+    let songs = [];
+
+    // 尝试从不同的响应结构中提取歌曲
+    if (data.req_1 && data.req_1.data && data.req_1.data.songlist) {
+      songs = data.req_1.data.songlist;
+    } else if (data.req_2 && data.req_2.data && data.req_2.data.songlist) {
+      songs = data.req_2.data.songlist;
+    }
+
+    // 如果API没有返回推荐，使用精选的热门歌曲
+    if (!songs || songs.length === 0) {
+      console.log('⚠️ 推荐API无数据，使用精选热门歌曲');
+      songs = getPopularSongs();
+    } else {
+      // 转换API返回的数据格式
+      songs = songs.map(song => ({
+        id: song.mid || song.songmid,
+        title: htmlDecode(song.name || song.title),
+        artist: htmlDecode(song.singer ? song.singer[0].name : song.artist),
+        album: htmlDecode(song.album ? song.album.name : song.album_name),
+        duration: song.interval || song.duration || 240,
+        img: song.album && song.album.mid ?
+          `https://y.gtimg.cn/music/photo_new/T002R300x300M000${song.album.mid}.jpg` :
+          'https://y.gtimg.cn/music/photo_new/T002R300x300M000default.jpg',
+        albumId: song.album ? song.album.mid : '',
+        artistId: song.singer ? song.singer[0].mid : '',
+        songmid: song.mid || song.songmid
+      }));
+    }
+
+    const result = {
+      code: 0,
+      data: {
+        list: songs.slice(0, 20), // 限制返回20首
+        total: songs.length,
+        updateTime: new Date().toISOString(),
+        source: 'qq_music_daily_recommend'
+      }
+    };
+
+    res.json(result);
+    console.log(`✅ 每日推荐完成，返回 ${result.data.list.length} 首歌曲`);
+
+  } catch (error) {
+    console.error('❌ 获取每日推荐出错:', error);
+    // 出错时返回精选热门歌曲
+    const fallbackSongs = getPopularSongs();
+    res.json({
+      code: 0,
+      data: {
+        list: fallbackSongs.slice(0, 20),
+        total: fallbackSongs.length,
+        updateTime: new Date().toISOString(),
+        source: 'fallback_popular_songs'
+      }
+    });
+  }
+});
+
+// 精选热门歌曲 - 当推荐API不可用时使用
+function getPopularSongs() {
+  return [
+    {
+      id: '003OUlho2HcRHC',
+      title: '稻香',
+      artist: '周杰伦',
+      album: '魔杰座',
+      duration: 223,
+      img: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000003OUlho2HcRHC.jpg',
+      songmid: '003OUlho2HcRHC'
+    },
+    {
+      id: '004Z8Ihr0JIu5s',
+      title: '青花瓷',
+      artist: '周杰伦',
+      album: '我很忙',
+      duration: 237,
+      img: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000004Z8Ihr0JIu5s.jpg',
+      songmid: '004Z8Ihr0JIu5s'
+    },
+    {
+      id: '002MiN3l3iTZto',
+      title: '夜曲',
+      artist: '周杰伦',
+      album: '十一月的萧邦',
+      duration: 237,
+      img: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000002MiN3l3iTZto.jpg',
+      songmid: '002MiN3l3iTZto'
+    },
+    {
+      id: '001JdDVg1aNpWy',
+      title: '告白气球',
+      artist: '周杰伦',
+      album: '周杰伦的床边故事',
+      duration: 203,
+      img: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000001JdDVg1aNpWy.jpg',
+      songmid: '001JdDVg1aNpWy'
+    },
+    {
+      id: '003aAYrm3GE5XF',
+      title: '七里香',
+      artist: '周杰伦',
+      album: '七里香',
+      duration: 299,
+      img: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000003aAYrm3GE5XF.jpg',
+      songmid: '003aAYrm3GE5XF'
+    },
+    {
+      id: '000xdZuV4FjCJ8',
+      title: '晴天',
+      artist: '周杰伦',
+      album: '叶惠美',
+      duration: 269,
+      img: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000000xdZuV4FjCJ8.jpg',
+      songmid: '000xdZuV4FjCJ8'
+    },
+    {
+      id: '004emQMs09Z1lz',
+      title: '简单爱',
+      artist: '周杰伦',
+      album: '范特西',
+      duration: 269,
+      img: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000004emQMs09Z1lz.jpg',
+      songmid: '004emQMs09Z1lz'
+    },
+    {
+      id: '001Qu4I30eVFYb',
+      title: '彩虹',
+      artist: '周杰伦',
+      album: '我很忙',
+      duration: 263,
+      img: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000001Qu4I30eVFYb.jpg',
+      songmid: '001Qu4I30eVFYb'
+    },
+    {
+      id: '003DFRzD2kxqaI',
+      title: '东风破',
+      artist: '周杰伦',
+      album: '七里香',
+      duration: 225,
+      img: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000003DFRzD2kxqaI.jpg',
+      songmid: '003DFRzD2kxqaI'
+    },
+    {
+      id: '000CK5xN2SkJYi',
+      title: '花海',
+      artist: '周杰伦',
+      album: '魔杰座',
+      duration: 262,
+      img: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000000CK5xN2SkJYi.jpg',
+      songmid: '000CK5xN2SkJYi'
+    },
+    {
+      id: '002sNbWp3royJG',
+      title: '听妈妈的话',
+      artist: '周杰伦',
+      album: '依然范特西',
+      duration: 252,
+      img: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000002sNbWp3royJG.jpg',
+      songmid: '002sNbWp3royJG'
+    },
+    {
+      id: '001BLpXF2DyJe2',
+      title: '千里之外',
+      artist: '周杰伦',
+      album: '依然范特西',
+      duration: 223,
+      img: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000001BLpXF2DyJe2.jpg',
+      songmid: '001BLpXF2DyJe2'
+    },
+    {
+      id: '003bFXOp3ZZXeJ',
+      title: '蒲公英的约定',
+      artist: '周杰伦',
+      album: '我很忙',
+      duration: 233,
+      img: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000003bFXOp3ZZXeJ.jpg',
+      songmid: '003bFXOp3ZZXeJ'
+    },
+    {
+      id: '000tVl0N4FjCJ8',
+      title: '安静',
+      artist: '周杰伦',
+      album: '范特西',
+      duration: 330,
+      img: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000000tVl0N4FjCJ8.jpg',
+      songmid: '000tVl0N4FjCJ8'
+    },
+    {
+      id: '004Wv2NO2GjXs8',
+      title: '园游会',
+      artist: '周杰伦',
+      album: '七里香',
+      duration: 244,
+      img: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000004Wv2NO2GjXs8.jpg',
+      songmid: '004Wv2NO2GjXs8'
+    },
+    {
+      id: '001TCp3N0HdKhK',
+      title: '发如雪',
+      artist: '周杰伦',
+      album: '十一月的萧邦',
+      duration: 299,
+      img: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000001TCp3N0HdKhK.jpg',
+      songmid: '001TCp3N0HdKhK'
+    },
+    {
+      id: '003RCA7t0y6du5',
+      title: '世界末日',
+      artist: '周杰伦',
+      album: '叶惠美',
+      duration: 237,
+      img: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000003RCA7t0y6du5.jpg',
+      songmid: '003RCA7t0y6du5'
+    },
+    {
+      id: '002Zklgj2z8WMw',
+      title: '手写的从前',
+      artist: '周杰伦',
+      album: '哎呦，不错哦',
+      duration: 237,
+      img: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000002Zklgj2z8WMw.jpg',
+      songmid: '002Zklgj2z8WMw'
+    },
+    {
+      id: '000MkMni19ClKG',
+      title: '烟花易冷',
+      artist: '周杰伦',
+      album: '跨时代',
+      duration: 262,
+      img: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000000MkMni19ClKG.jpg',
+      songmid: '000MkMni19ClKG'
+    },
+    {
+      id: '001hGJ1c0yWYsK',
+      title: '等你下课',
+      artist: '周杰伦',
+      album: '等你下课',
+      duration: 279,
+      img: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000001hGJ1c0yWYsK.jpg',
+      songmid: '001hGJ1c0yWYsK'
+    }
+  ];
+}
+
 // 处理OPTIONS请求（CORS预检）
 app.options('/proxy/audio', (req, res) => {
   res.set({

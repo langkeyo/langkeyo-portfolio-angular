@@ -87,6 +87,13 @@
         option {
           background: #667eea;
           color: white;
+          padding: 8px 12px;
+        }
+
+        &:focus {
+          outline: none;
+          border-color: rgba(255, 255, 255, 0.5);
+          box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
         }
       }
     }

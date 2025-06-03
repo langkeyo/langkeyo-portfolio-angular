@@ -1,0 +1,556 @@
+<div class="tech-radar-container">
+  <!-- 标题区域 -->
+  <div class="radar-header">
+    <div class="header-content">
+      <h2 class="radar-title">
+        <span class="title-icon">🎯</span>
+        技术雷达图
+      </h2>
+      <p class="radar-subtitle">动态技能评估系统 - 学习路径推荐与行业趋势分析</p>
+    </div>
+    
+    <!-- 控制面板 -->
+    <div class="radar-controls">
+      <div class="control-group">
+        <label class="control-label">象限筛选:</label>
+        <select [(ngModel)]="selectedQuadrant" (change)="filterByQuadrant(selectedQuadrant)" class="control-select">
+          <option *ngFor="let option of quadrantOptions" [value]="option.value">
+            {{ option.icon }} {{ option.label }}
+          </option>
+        </select>
+      </div>
+      
+      <div class="control-group">
+        <label class="control-label">环级筛选:</label>
+        <select [(ngModel)]="selectedRing" (change)="filterByRing(selectedRing)" class="control-select">
+          <option *ngFor="let option of ringOptions" [value]="option.value">
+            {{ option.icon }} {{ option.label }}
+          </option>
+        </select>
+      </div>
+      
+      <div class="control-group">
+        <button (click)="resetFilters()" class="action-btn reset-btn">
+          <span class="btn-icon">🔄</span>
+          重置筛选
+        </button>
+      </div>
+      
+      <div class="control-group">
+        <button (click)="analyzeTrends()" class="action-btn trend-btn">
+          <span class="btn-icon">📊</span>
+          趋势分析
+        </button>
+      </div>
+      
+      <div class="control-group">
+        <button (click)="exportRadarData()" class="action-btn export-btn">
+          <span class="btn-icon">📤</span>
+          导出数据
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主要内容区域 -->
+  <div class="radar-content">
+    
+    <!-- 雷达图区域 -->
+    <div class="radar-section">
+      <div class="radar-canvas-container">
+        <canvas #radarCanvas width="600" height="600" class="radar-canvas"></canvas>
+        
+        <!-- 雷达图图例 -->
+        <div class="radar-legend">
+          <div class="legend-section">
+            <h4 class="legend-title">象限</h4>
+            <div class="legend-items">
+              <div *ngFor="let quadrant of radarConfig.quadrants" class="legend-item">
+                <div class="legend-color" [style.background-color]="quadrant.color"></div>
+                <span class="legend-label">{{ quadrant.label }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="legend-section">
+            <h4 class="legend-title">环级</h4>
+            <div class="legend-items">
+              <div *ngFor="let ring of radarConfig.rings" class="legend-item">
+                <div class="legend-color" [style.background-color]="ring.color"></div>
+                <span class="legend-label">{{ ring.label }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="legend-section">
+            <h4 class="legend-title">趋势</h4>
+            <div class="legend-items">
+              <div class="legend-item">
+                <span class="trend-icon">📈</span>
+                <span class="legend-label">上升</span>
+              </div>
+              <div class="legend-item">
+                <span class="trend-icon">➡️</span>
+                <span class="legend-label">稳定</span>
+              </div>
+              <div class="legend-item">
+                <span class="trend-icon">📉</span>
+                <span class="legend-label">下降</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 技术列表区域 -->
+    <div class="tech-list-section">
+      <h3 class="section-title">
+        <span class="section-icon">💻</span>
+        技术项目列表
+      </h3>
+      
+      <div class="tech-grid">
+        <div *ngFor="let tech of getFilteredTechItems()" 
+             class="tech-card" 
+             (click)="selectTech(tech)"
+             [class.selected]="selectedTech?.id === tech.id">
+          
+          <!-- 技术卡片头部 -->
+          <div class="tech-header">
+            <div class="tech-name">{{ tech.name }}</div>
+            <div class="tech-trend">{{ getTrendIcon(tech.trend) }}</div>
+          </div>
+          
+          <!-- 技术信息 -->
+          <div class="tech-info">
+            <div class="tech-meta">
+              <span class="tech-quadrant" [style.color]="getQuadrantColor(tech.quadrant)">
+                {{ getQuadrantLabel(tech.quadrant) }}
+              </span>
+              <span class="tech-ring" [style.color]="getRingColor(tech.ring)">
+                {{ getRingLabel(tech.ring) }}
+              </span>
+            </div>
+            
+            <div class="tech-description">{{ tech.description }}</div>
+            
+            <!-- 技能指标 -->
+            <div class="tech-metrics">
+              <div class="metric">
+                <span class="metric-label">熟练度</span>
+                <div class="metric-bar">
+                  <div class="metric-fill" [style.width.%]="tech.level * 10"></div>
+                </div>
+                <span class="metric-value">{{ getSkillLevelDescription(tech.level) }}</span>
+              </div>
+              
+              <div class="metric">
+                <span class="metric-label">市场需求</span>
+                <div class="metric-bar">
+                  <div class="metric-fill demand" [style.width.%]="tech.marketDemand * 10"></div>
+                </div>
+                <span class="metric-value">{{ tech.marketDemand }}/10</span>
+              </div>
+              
+              <div class="metric">
+                <span class="metric-label">未来前景</span>
+                <div class="metric-bar">
+                  <div class="metric-fill prospect" [style.width.%]="tech.futureProspect * 10"></div>
+                </div>
+                <span class="metric-value">{{ tech.futureProspect }}/10</span>
+              </div>
+            </div>
+            
+            <!-- 竞争力评分 -->
+            <div class="competitiveness-score">
+              <span class="score-label">竞争力评分:</span>
+              <span class="score-value">{{ calculateCompetitiveness(tech) }}/10</span>
+            </div>
+          </div>
+          
+          <!-- 操作按钮 -->
+          <div class="tech-actions">
+            <button (click)="generateLearningPath(tech); $event.stopPropagation()" 
+                    class="action-btn learning-btn"
+                    [disabled]="isGeneratingPath">
+              <span class="btn-icon">🎓</span>
+              {{ isGeneratingPath ? '生成中...' : '学习路径' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 技术详情模态框 -->
+  <div *ngIf="selectedTech" class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content tech-detail-modal" (click)="$event.stopPropagation()">
+      <!-- 模态框头部 -->
+      <div class="modal-header">
+        <h3 class="modal-title">{{ selectedTech.name }} 详细信息</h3>
+        <button (click)="closeModal()" class="close-btn">&times;</button>
+      </div>
+      
+      <!-- 模态框内容 -->
+      <div class="modal-body">
+        <div class="tech-detail-content">
+          <!-- 基本信息 -->
+          <div class="detail-section">
+            <h4 class="detail-title">基本信息</h4>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <span class="detail-label">技术名称:</span>
+                <span class="detail-value">{{ selectedTech.name }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">所属象限:</span>
+                <span class="detail-value" [style.color]="getQuadrantColor(selectedTech.quadrant)">
+                  {{ getQuadrantLabel(selectedTech.quadrant) }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">采用环级:</span>
+                <span class="detail-value" [style.color]="getRingColor(selectedTech.ring)">
+                  {{ getRingLabel(selectedTech.ring) }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">发展趋势:</span>
+                <span class="detail-value">
+                  {{ getTrendIcon(selectedTech.trend) }}
+                  {{ selectedTech.trend === 'rising' ? '上升' : 
+                     selectedTech.trend === 'stable' ? '稳定' : '下降' }}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 技能评估 -->
+          <div class="detail-section">
+            <h4 class="detail-title">技能评估</h4>
+            <div class="assessment-grid">
+              <div class="assessment-item">
+                <div class="assessment-header">
+                  <span class="assessment-label">个人熟练度</span>
+                  <span class="assessment-score">{{ selectedTech.level }}/10</span>
+                </div>
+                <div class="assessment-bar">
+                  <div class="assessment-fill skill" [style.width.%]="selectedTech.level * 10"></div>
+                </div>
+                <div class="assessment-desc">{{ getSkillLevelDescription(selectedTech.level) }}</div>
+              </div>
+              
+              <div class="assessment-item">
+                <div class="assessment-header">
+                  <span class="assessment-label">市场需求度</span>
+                  <span class="assessment-score">{{ selectedTech.marketDemand }}/10</span>
+                </div>
+                <div class="assessment-bar">
+                  <div class="assessment-fill demand" [style.width.%]="selectedTech.marketDemand * 10"></div>
+                </div>
+                <div class="assessment-desc">
+                  {{ selectedTech.marketDemand >= 8 ? '需求旺盛' : 
+                     selectedTech.marketDemand >= 6 ? '需求稳定' : '需求一般' }}
+                </div>
+              </div>
+              
+              <div class="assessment-item">
+                <div class="assessment-header">
+                  <span class="assessment-label">未来前景</span>
+                  <span class="assessment-score">{{ selectedTech.futureProspect }}/10</span>
+                </div>
+                <div class="assessment-bar">
+                  <div class="assessment-fill prospect" [style.width.%]="selectedTech.futureProspect * 10"></div>
+                </div>
+                <div class="assessment-desc">
+                  {{ selectedTech.futureProspect >= 8 ? '前景广阔' : 
+                     selectedTech.futureProspect >= 6 ? '前景良好' : '前景一般' }}
+                </div>
+              </div>
+              
+              <div class="assessment-item competitiveness">
+                <div class="assessment-header">
+                  <span class="assessment-label">综合竞争力</span>
+                  <span class="assessment-score">{{ calculateCompetitiveness(selectedTech) }}/10</span>
+                </div>
+                <div class="assessment-bar">
+                  <div class="assessment-fill competitiveness" [style.width.%]="calculateCompetitiveness(selectedTech) * 10"></div>
+                </div>
+                <div class="assessment-desc">
+                  {{ calculateCompetitiveness(selectedTech) >= 8 ? '竞争力强' : 
+                     calculateCompetitiveness(selectedTech) >= 6 ? '竞争力中等' : '需要提升' }}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 技术描述 -->
+          <div class="detail-section">
+            <h4 class="detail-title">技术描述</h4>
+            <p class="tech-description-full">{{ selectedTech.description }}</p>
+          </div>
+          
+          <!-- 操作按钮 -->
+          <div class="detail-actions">
+            <button (click)="generateLearningPath(selectedTech)" 
+                    class="action-btn primary-btn"
+                    [disabled]="isGeneratingPath">
+              <span class="btn-icon">🎓</span>
+              {{ isGeneratingPath ? '生成学习路径中...' : '生成学习路径' }}
+            </button>
+            
+            <button (click)="analyzeTrends()" 
+                    class="action-btn secondary-btn"
+                    [disabled]="isAnalyzingTrends">
+              <span class="btn-icon">📊</span>
+              {{ isAnalyzingTrends ? '分析中...' : '行业趋势分析' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 学习路径模态框 -->
+  <div *ngIf="showLearningPath" class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content learning-path-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <span class="modal-icon">🎓</span>
+          学习路径推荐
+        </h3>
+        <button (click)="closeModal()" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div *ngIf="isGeneratingPath" class="generating-state">
+          <div class="loading-spinner"></div>
+          <p class="loading-text">AI正在为您生成个性化学习路径...</p>
+        </div>
+
+        <div *ngIf="!isGeneratingPath && learningPaths.length > 0" class="learning-paths">
+          <div *ngFor="let path of learningPaths.slice(0, 3)" class="learning-path-card">
+            <div class="path-header">
+              <h4 class="path-title">{{ path.title }}</h4>
+              <div class="path-meta">
+                <span class="path-duration">{{ path.duration }}</span>
+                <span class="path-difficulty" [class]="'difficulty-' + path.difficulty">
+                  {{ path.difficulty === 'beginner' ? '初级' :
+                     path.difficulty === 'intermediate' ? '中级' : '高级' }}
+                </span>
+              </div>
+            </div>
+
+            <p class="path-description">{{ path.description }}</p>
+
+            <!-- 前置条件 -->
+            <div class="path-section">
+              <h5 class="section-title">前置条件</h5>
+              <div class="prerequisites">
+                <span *ngFor="let prereq of path.prerequisites" class="prerequisite-tag">
+                  {{ prereq }}
+                </span>
+              </div>
+            </div>
+
+            <!-- 学习步骤 -->
+            <div class="path-section">
+              <h5 class="section-title">学习步骤</h5>
+              <div class="learning-steps">
+                <div *ngFor="let step of path.steps; let i = index" class="learning-step">
+                  <div class="step-number">{{ i + 1 }}</div>
+                  <div class="step-content">
+                    <h6 class="step-title">{{ step.title }}</h6>
+                    <p class="step-description">{{ step.description }}</p>
+                    <div class="step-meta">
+                      <span class="step-time">⏱️ {{ step.estimatedTime }}</span>
+                      <span class="step-status" [class.completed]="step.completed">
+                        {{ step.completed ? '✅ 已完成' : '⏳ 待完成' }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 学习成果 -->
+            <div class="path-section">
+              <h5 class="section-title">预期成果</h5>
+              <div class="outcomes">
+                <div *ngFor="let outcome of path.outcomes" class="outcome-item">
+                  <span class="outcome-icon">🎯</span>
+                  <span class="outcome-text">{{ outcome }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 路径操作 -->
+            <div class="path-actions">
+              <button class="action-btn start-btn">
+                <span class="btn-icon">🚀</span>
+                开始学习
+              </button>
+              <button class="action-btn bookmark-btn">
+                <span class="btn-icon">🔖</span>
+                收藏路径
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 行业趋势分析模态框 -->
+  <div *ngIf="showTrendAnalysis" class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content trend-analysis-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <span class="modal-icon">📊</span>
+          行业趋势分析
+        </h3>
+        <button (click)="closeModal()" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div *ngIf="isAnalyzingTrends" class="analyzing-state">
+          <div class="loading-spinner"></div>
+          <p class="loading-text">AI正在分析最新行业趋势数据...</p>
+        </div>
+
+        <div *ngIf="!isAnalyzingTrends" class="trend-analysis">
+          <!-- 趋势概览 -->
+          <div class="trend-overview">
+            <h4 class="overview-title">技术趋势概览</h4>
+            <div class="trend-stats">
+              <div class="trend-stat">
+                <div class="stat-value">{{ getRisingTechCount() }}</div>
+                <div class="stat-label">上升趋势</div>
+                <div class="stat-icon rising">📈</div>
+              </div>
+              <div class="trend-stat">
+                <div class="stat-value">{{ getStableTechCount() }}</div>
+                <div class="stat-label">稳定发展</div>
+                <div class="stat-icon stable">➡️</div>
+              </div>
+              <div class="trend-stat">
+                <div class="stat-value">{{ getDecliningTechCount() }}</div>
+                <div class="stat-label">下降趋势</div>
+                <div class="stat-icon declining">📉</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 详细趋势分析 -->
+          <div class="detailed-trends">
+            <div *ngFor="let trend of industryTrends" class="trend-card">
+              <div class="trend-header">
+                <h5 class="trend-title">{{ trend.technology }}</h5>
+                <div class="trend-badge" [class]="'trend-' + trend.trend">
+                  {{ trend.trend === 'emerging' ? '新兴' :
+                     trend.trend === 'growing' ? '增长' :
+                     trend.trend === 'mature' ? '成熟' : '衰退' }}
+                </div>
+              </div>
+
+              <div class="trend-metrics">
+                <div class="trend-metric">
+                  <span class="metric-label">采用率</span>
+                  <div class="metric-bar">
+                    <div class="metric-fill adoption" [style.width.%]="trend.adoptionRate"></div>
+                  </div>
+                  <span class="metric-value">{{ trend.adoptionRate }}%</span>
+                </div>
+
+                <div class="trend-metric">
+                  <span class="metric-label">市场增长</span>
+                  <div class="metric-bar">
+                    <div class="metric-fill growth" [style.width.%]="trend.marketGrowth * 2"></div>
+                  </div>
+                  <span class="metric-value">{{ trend.marketGrowth }}%</span>
+                </div>
+
+                <div class="trend-metric">
+                  <span class="metric-label">职位需求</span>
+                  <div class="metric-bar">
+                    <div class="metric-fill demand" [style.width.%]="trend.jobDemand * 10"></div>
+                  </div>
+                  <span class="metric-value">{{ trend.jobDemand }}/10</span>
+                </div>
+              </div>
+
+              <div class="trend-details">
+                <div class="salary-range">
+                  <span class="detail-label">薪资范围:</span>
+                  <span class="detail-value">
+                    {{ formatSalaryRange(trend.salaryRange.min, trend.salaryRange.max) }}
+                  </span>
+                </div>
+
+                <div class="key-companies">
+                  <span class="detail-label">主要公司:</span>
+                  <div class="company-tags">
+                    <span *ngFor="let company of getLimitedCompanies(trend.keyCompanies)" class="company-tag">
+                      {{ company }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="related-tech">
+                  <span class="detail-label">相关技术:</span>
+                  <div class="tech-tags">
+                    <span *ngFor="let tech of getLimitedTechnologies(trend.relatedTechnologies)" class="tech-tag">
+                      {{ tech }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="future-outlook">
+                  <span class="detail-label">未来展望:</span>
+                  <p class="outlook-text">{{ trend.futureOutlook }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 个性化建议 -->
+          <div class="personalized-recommendations">
+            <h4 class="recommendations-title">个性化建议</h4>
+            <div class="recommendation-cards">
+              <div class="recommendation-card priority-high">
+                <div class="recommendation-header">
+                  <span class="recommendation-icon">🔥</span>
+                  <span class="recommendation-title">高优先级技能</span>
+                </div>
+                <p class="recommendation-text">
+                  基于当前技能组合和市场趋势，建议重点关注AI集成和云原生技术，这些领域需求增长迅速且薪资水平较高。
+                </p>
+              </div>
+
+              <div class="recommendation-card priority-medium">
+                <div class="recommendation-header">
+                  <span class="recommendation-icon">📈</span>
+                  <span class="recommendation-title">技能提升建议</span>
+                </div>
+                <p class="recommendation-text">
+                  继续深化现有技能的同时，可以考虑学习边缘计算和WebAssembly等新兴技术，为未来发展做好准备。
+                </p>
+              </div>
+
+              <div class="recommendation-card priority-low">
+                <div class="recommendation-header">
+                  <span class="recommendation-icon">💡</span>
+                  <span class="recommendation-title">长期规划</span>
+                </div>
+                <p class="recommendation-text">
+                  关注量子计算和生物信息学等前沿领域，虽然目前应用有限，但未来5-10年可能成为重要的技术方向。
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

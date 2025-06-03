@@ -116,62 +116,163 @@ export class MusicPlayerComponent implements OnInit, OnDestroy {
   }
 
   private async loadDemoPlaylist() {
-    // 使用QQ音乐的歌曲ID，获取真实的音乐 - 选择一些经典和流行的歌曲
-    this.playlist = [
-      {
-        id: '003nYgF01aN0yF', // 月亮代表我的心 - 邓丽君 (经典老歌)
-        title: '月亮代表我的心',
-        artist: '邓丽君',
-        album: '歌曲精选80首',
-        duration: 215,
-        coverUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=300&fit=crop',
-        audioUrl: '' // 将通过API获取真实播放链接
-      },
-      {
-        id: '002B7YkH27CHwF', // 月亮代表我的心 - 齐秦版本
-        title: '月亮代表我的心',
-        artist: '齐秦',
-        album: '齐秦的世纪情歌之迷',
-        duration: 223,
-        coverUrl: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=300&h=300&fit=crop',
-        audioUrl: '' // 将通过API获取真实播放链接
-      },
-      {
-        id: '001k6wXs4emZl5', // 月亮代表我的心 - 张国荣版本
-        title: '月亮代表我的心',
-        artist: '张国荣',
-        album: '张国荣跨越97演唱会',
-        duration: 237,
-        coverUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop',
-        audioUrl: '' // 将通过API获取真实播放链接
-      },
-      {
-        id: '002VbSwb07AzWN', // 月亮代表我的心 - 方大同版本
-        title: '月亮代表我的心',
-        artist: '方大同',
-        album: 'Timeless 可啦思刻',
-        duration: 200,
-        coverUrl: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop',
-        audioUrl: '' // 将通过API获取真实播放链接
-      },
-      {
-        id: '000cgVbt3akFYB', // 月亮代表我的心 - 赵鹏版本
-        title: '月亮代表我的心',
-        artist: '赵鹏',
-        album: '闪亮的日子 (赵鹏人声低音炮1)',
-        duration: 278,
-        coverUrl: 'https://images.unsplash.com/photo-1571974599782-87624638275c?w=300&h=300&fit=crop',
-        audioUrl: '' // 将通过API获取真实播放链接
+    console.log('🎵 开始加载QQ音乐每日推荐...');
+
+    // 首先尝试从本地服务器获取每日推荐
+    try {
+      const isLocalServerAvailable = await this.checkLocalServer();
+
+      if (isLocalServerAvailable) {
+        await this.loadDailyRecommendFromServer();
+      } else {
+        console.log('⚠️ 本地服务器不可用，使用备用推荐歌曲');
+        this.loadFallbackPlaylist();
       }
-    ];
+    } catch (error) {
+      console.error('❌ 加载每日推荐失败:', error);
+      this.loadFallbackPlaylist();
+    }
 
     if (this.playlist.length > 0) {
       this.currentTrack = this.playlist[0];
     }
 
-    console.log('🎵 开始获取QQ音乐数据...');
-    // 获取本地QQ音乐API的真实数据
+    console.log('🎵 开始获取QQ音乐播放链接...');
+    // 获取播放链接
     await this.loadQQMusicData();
+  }
+
+  private async loadDailyRecommendFromServer() {
+    try {
+      console.log('🎵 从服务器获取每日推荐...');
+      const response = await fetch('https://qq-music-proxy.onrender.com/recommend/daily', {
+        method: 'GET',
+        signal: AbortSignal.timeout(10000) // 10秒超时
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('🎵 每日推荐响应:', data);
+
+        if (data.code === 0 && data.data && data.data.list && data.data.list.length > 0) {
+          this.playlist = data.data.list.map((song: any) => ({
+            id: song.id || song.songmid,
+            title: song.title,
+            artist: song.artist,
+            album: song.album,
+            duration: song.duration,
+            coverUrl: song.img || 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop',
+            audioUrl: '' // 将通过API获取真实播放链接
+          }));
+          console.log(`✅ 成功加载 ${this.playlist.length} 首每日推荐歌曲`);
+          return;
+        }
+      }
+
+      console.log('⚠️ 每日推荐API无数据，使用备用歌曲');
+      this.loadFallbackPlaylist();
+    } catch (error) {
+      console.error('❌ 获取每日推荐失败:', error);
+      this.loadFallbackPlaylist();
+    }
+  }
+
+  private loadFallbackPlaylist() {
+    console.log('🎵 加载备用推荐歌曲...');
+    // 使用精选的热门歌曲作为备用
+    this.playlist = [
+      {
+        id: '003OUlho2HcRHC',
+        title: '稻香',
+        artist: '周杰伦',
+        album: '魔杰座',
+        duration: 223,
+        coverUrl: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000003OUlho2HcRHC.jpg',
+        audioUrl: ''
+      },
+      {
+        id: '004Z8Ihr0JIu5s',
+        title: '青花瓷',
+        artist: '周杰伦',
+        album: '我很忙',
+        duration: 237,
+        coverUrl: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000004Z8Ihr0JIu5s.jpg',
+        audioUrl: ''
+      },
+      {
+        id: '000xdZuV4FjCJ8',
+        title: '晴天',
+        artist: '周杰伦',
+        album: '叶惠美',
+        duration: 269,
+        coverUrl: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000000xdZuV4FjCJ8.jpg',
+        audioUrl: ''
+      },
+      {
+        id: '001JdDVg1aNpWy',
+        title: '告白气球',
+        artist: '周杰伦',
+        album: '周杰伦的床边故事',
+        duration: 203,
+        coverUrl: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000001JdDVg1aNpWy.jpg',
+        audioUrl: ''
+      },
+      {
+        id: '003aAYrm3GE5XF',
+        title: '七里香',
+        artist: '周杰伦',
+        album: '七里香',
+        duration: 299,
+        coverUrl: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000003aAYrm3GE5XF.jpg',
+        audioUrl: ''
+      },
+      {
+        id: '002MiN3l3iTZto',
+        title: '夜曲',
+        artist: '周杰伦',
+        album: '十一月的萧邦',
+        duration: 237,
+        coverUrl: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000002MiN3l3iTZto.jpg',
+        audioUrl: ''
+      },
+      {
+        id: '004emQMs09Z1lz',
+        title: '简单爱',
+        artist: '周杰伦',
+        album: '范特西',
+        duration: 269,
+        coverUrl: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000004emQMs09Z1lz.jpg',
+        audioUrl: ''
+      },
+      {
+        id: '001Qu4I30eVFYb',
+        title: '彩虹',
+        artist: '周杰伦',
+        album: '我很忙',
+        duration: 263,
+        coverUrl: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000001Qu4I30eVFYb.jpg',
+        audioUrl: ''
+      },
+      {
+        id: '003DFRzD2kxqaI',
+        title: '东风破',
+        artist: '周杰伦',
+        album: '七里香',
+        duration: 225,
+        coverUrl: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000003DFRzD2kxqaI.jpg',
+        audioUrl: ''
+      },
+      {
+        id: '000MkMni19ClKG',
+        title: '烟花易冷',
+        artist: '周杰伦',
+        album: '跨时代',
+        duration: 262,
+        coverUrl: 'https://y.gtimg.cn/music/photo_new/T002R300x300M000000MkMni19ClKG.jpg',
+        audioUrl: ''
+      }
+    ];
+    console.log(`✅ 备用歌曲加载完成，共 ${this.playlist.length} 首`);
   }
 
   private async loadQQMusicData() {
@@ -653,10 +754,20 @@ export class MusicPlayerComponent implements OnInit, OnDestroy {
   }
 
   private handleKeydown = (event: KeyboardEvent) => {
+    // 检查当前焦点是否在输入框中
+    const activeElement = document.activeElement;
+    const isInputFocused = activeElement && (
+      activeElement.tagName === 'INPUT' ||
+      activeElement.tagName === 'TEXTAREA' ||
+      (activeElement as HTMLElement).contentEditable === 'true'
+    );
+
     if (event.key === 'Escape' && this.isExpanded) {
       this.toggleExpanded();
     }
-    if (event.code === 'Space' && this.isExpanded) {
+
+    // 只有在播放器展开且没有输入框获得焦点时才响应空格键
+    if (event.code === 'Space' && this.isExpanded && !isInputFocused) {
       event.preventDefault();
       this.togglePlay();
     }

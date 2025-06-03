@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { McpService } from './mcp.service';
 
 // 技能洞察接口
 export interface SkillInsight {
@@ -54,7 +55,25 @@ export class GeminiService {
   private lastCacheUpdate = 0;
   private readonly cacheExpiry = environment.cache.geminiInsights;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private mcpService: McpService
+  ) {
+    console.log('🤖 Gemini服务初始化');
+    this.initializeMcp();
+  }
+
+  /**
+   * 初始化MCP服务
+   */
+  private async initializeMcp(): Promise<void> {
+    try {
+      await this.mcpService.initializeAllServers();
+      console.log('🔧 MCP服务已集成到Gemini');
+    } catch (error) {
+      console.error('❌ MCP初始化失败:', error);
+    }
+  }
 
   /**
    * 获取技能深度洞察

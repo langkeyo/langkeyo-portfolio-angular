@@ -1,0 +1,403 @@
+<div class="dashboard-container">
+  <!-- 仪表板标题 -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h2 class="dashboard-title">
+        <span class="title-icon">📊</span>
+        实时数据仪表板
+      </h2>
+      <p class="dashboard-subtitle">个人数据中心 - 实时监控与分析</p>
+    </div>
+    
+    <!-- 控制面板 -->
+    <div class="dashboard-controls">
+      <div class="control-group">
+        <label class="control-label">时间范围:</label>
+        <select [(ngModel)]="selectedTimeRange" class="control-select">
+          <option *ngFor="let range of timeRanges" [value]="range.value">
+            {{ range.label }}
+          </option>
+        </select>
+      </div>
+      
+      <div class="control-group">
+        <label class="control-label">刷新间隔:</label>
+        <select [(ngModel)]="refreshInterval" (change)="onRefreshIntervalChange()" class="control-select">
+          <option *ngFor="let interval of refreshIntervals" [value]="interval.value">
+            {{ interval.label }}
+          </option>
+        </select>
+      </div>
+      
+      <div class="control-group">
+        <button (click)="toggleAutoRefresh()" class="auto-refresh-btn" [class.active]="autoRefresh">
+          <span class="btn-icon">{{ autoRefresh ? '⏸️' : '▶️' }}</span>
+          {{ autoRefresh ? '暂停' : '开始' }}
+        </button>
+      </div>
+      
+      <div class="control-group">
+        <button (click)="refresh()" class="refresh-btn" [disabled]="loading">
+          <span class="btn-icon">🔄</span>
+          刷新
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 最后更新时间 -->
+  <div class="update-info">
+    <span class="update-text">最后更新: {{ formatTime(lastUpdated) }}</span>
+    <div class="status-indicator" [class.loading]="loading" [class.error]="error">
+      <span class="status-dot"></span>
+      <span class="status-text">
+        {{ loading ? '更新中...' : error ? '连接异常' : '实时同步' }}
+      </span>
+    </div>
+  </div>
+
+  <!-- 加载状态 -->
+  <div *ngIf="loading && !metrics.github" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">正在加载仪表板数据...</p>
+  </div>
+
+  <!-- 错误状态 -->
+  <div *ngIf="error && !loading" class="error-state">
+    <div class="error-icon">⚠️</div>
+    <p class="error-text">数据加载失败</p>
+    <button (click)="refresh()" class="retry-btn">重试</button>
+  </div>
+
+  <!-- 仪表板内容 -->
+  <div *ngIf="!loading || metrics.github" class="dashboard-content">
+    
+    <!-- 第一行：核心指标 -->
+    <div class="metrics-row">
+      <!-- GitHub 统计 -->
+      <div class="metric-card github-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <span class="card-icon">🐙</span>
+            GitHub 活动
+          </h3>
+          <div class="card-status" [class]="getStatusClass('healthy')">
+            <span class="status-dot"></span>
+            实时
+          </div>
+        </div>
+        
+        <div *ngIf="metrics.github" class="card-content">
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-value">{{ metrics.github.user.public_repos }}</div>
+              <div class="stat-label">仓库</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{ formatNumber(metrics.github.totalStars) }}</div>
+              <div class="stat-label">星标</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{ formatNumber(metrics.github.totalForks) }}</div>
+              <div class="stat-label">Fork</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{ formatNumber(metrics.github.user.followers) }}</div>
+              <div class="stat-label">关注者</div>
+            </div>
+          </div>
+          
+          <div class="languages-chart">
+            <h4 class="chart-title">编程语言分布</h4>
+            <div class="languages-list">
+              <div *ngFor="let lang of metrics.github.languages | keyvalue | slice:0:5" class="language-item">
+                <span class="language-name">{{ lang.key }}</span>
+                <span class="language-count">{{ lang.value }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div *ngIf="!metrics.github" class="card-loading">
+          <div class="loading-spinner small"></div>
+          <span>加载中...</span>
+        </div>
+      </div>
+
+      <!-- 系统健康 -->
+      <div class="metric-card health-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <span class="card-icon">💚</span>
+            系统健康
+          </h3>
+          <div class="card-status" [class]="getStatusClass(metrics.systemHealth.status)">
+            <span class="status-dot"></span>
+            {{ metrics.systemHealth.status === 'healthy' ? '健康' : 
+               metrics.systemHealth.status === 'warning' ? '警告' : '严重' }}
+          </div>
+        </div>
+        
+        <div class="card-content">
+          <div class="health-metrics">
+            <div class="health-item">
+              <div class="health-label">运行时间</div>
+              <div class="health-value">{{ metrics.systemHealth.uptime }}天</div>
+            </div>
+            <div class="health-item">
+              <div class="health-label">响应时间</div>
+              <div class="health-value">{{ metrics.systemHealth.responseTime }}ms</div>
+            </div>
+            <div class="health-item">
+              <div class="health-label">错误率</div>
+              <div class="health-value">{{ metrics.systemHealth.errorRate.toFixed(2) }}%</div>
+            </div>
+          </div>
+          
+          <div class="usage-bars">
+            <div class="usage-item">
+              <div class="usage-label">内存使用</div>
+              <div class="usage-bar">
+                <div class="usage-fill" [style.width.%]="metrics.systemHealth.memoryUsage"></div>
+              </div>
+              <div class="usage-value">{{ metrics.systemHealth.memoryUsage }}%</div>
+            </div>
+            <div class="usage-item">
+              <div class="usage-label">CPU使用</div>
+              <div class="usage-bar">
+                <div class="usage-fill" [style.width.%]="metrics.systemHealth.cpuUsage"></div>
+              </div>
+              <div class="usage-value">{{ metrics.systemHealth.cpuUsage }}%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 网站统计 -->
+      <div class="metric-card website-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <span class="card-icon">📈</span>
+            网站统计
+          </h3>
+          <div class="card-status" [class]="getStatusClass('active')">
+            <span class="status-dot"></span>
+            {{ selectedTimeRange }}
+          </div>
+        </div>
+        
+        <div class="card-content">
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-value">{{ formatNumber(metrics.websiteStats.visitors) }}</div>
+              <div class="stat-label">访客</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{ formatNumber(metrics.websiteStats.pageViews) }}</div>
+              <div class="stat-label">页面浏览</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{ metrics.websiteStats.bounceRate }}%</div>
+              <div class="stat-label">跳出率</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{ Math.floor(metrics.websiteStats.avgSessionDuration / 60) }}m</div>
+              <div class="stat-label">平均停留</div>
+            </div>
+          </div>
+          
+          <div class="top-pages">
+            <h4 class="chart-title">热门页面</h4>
+            <div class="pages-list">
+              <div *ngFor="let page of metrics.websiteStats.topPages" class="page-item">
+                <span class="page-path">{{ page.path }}</span>
+                <span class="page-views">{{ formatNumber(page.views) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 第二行：技能与项目进度 -->
+    <div class="progress-row">
+      <!-- 技能进度 -->
+      <div class="progress-card skills-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <span class="card-icon">🎯</span>
+            技能成长轨迹
+          </h3>
+          <div class="card-actions">
+            <button class="action-btn">查看详情</button>
+          </div>
+        </div>
+        
+        <div class="card-content">
+          <div class="skills-list">
+            <div *ngFor="let skill of metrics.skills" class="skill-item">
+              <div class="skill-header">
+                <span class="skill-name">{{ skill.name }}</span>
+                <span class="skill-trend">{{ getTrendIcon(skill.trend) }}</span>
+                <span class="skill-level">Lv.{{ skill.level }}</span>
+              </div>
+              <div class="skill-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill" [style.width.%]="skill.progress"></div>
+                </div>
+                <span class="progress-value">{{ skill.progress }}%</span>
+              </div>
+              <div class="skill-meta">
+                <span class="skill-category">{{ skill.category }}</span>
+                <span class="skill-updated">{{ formatRelativeTime(skill.lastUpdated) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 项目进度 -->
+      <div class="progress-card projects-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <span class="card-icon">🚀</span>
+            项目进度追踪
+          </h3>
+          <div class="card-actions">
+            <button class="action-btn">管理项目</button>
+          </div>
+        </div>
+        
+        <div class="card-content">
+          <div class="projects-list">
+            <div *ngFor="let project of metrics.projects" class="project-item">
+              <div class="project-header">
+                <span class="project-name">{{ project.name }}</span>
+                <span class="project-status" [class]="getStatusClass(project.status)">
+                  {{ project.status === 'active' ? '进行中' : 
+                     project.status === 'completed' ? '已完成' : 
+                     project.status === 'paused' ? '暂停' : '计划中' }}
+                </span>
+              </div>
+              <div class="project-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill" [style.width.%]="project.completion"></div>
+                </div>
+                <span class="progress-value">{{ project.completion }}%</span>
+              </div>
+              <div class="project-stats">
+                <span class="project-stat">
+                  <span class="stat-icon">⭐</span>
+                  {{ project.stars }}
+                </span>
+                <span class="project-stat">
+                  <span class="stat-icon">🐛</span>
+                  {{ project.issues }}
+                </span>
+                <span class="project-stat">
+                  <span class="stat-icon">👥</span>
+                  {{ project.contributors }}
+                </span>
+                <span class="project-stat">
+                  <span class="stat-icon">📝</span>
+                  {{ formatRelativeTime(project.lastCommit) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 第三行：天气与其他信息 -->
+    <div class="info-row">
+      <!-- 天气信息 -->
+      <div class="info-card weather-card" *ngIf="metrics.weather">
+        <div class="card-header">
+          <h3 class="card-title">
+            <span class="card-icon">🌤️</span>
+            当前天气
+          </h3>
+          <div class="weather-location">{{ metrics.weather.location }}</div>
+        </div>
+        
+        <div class="card-content">
+          <div class="weather-main">
+            <div class="weather-icon">{{ metrics.weather.weatherIcon }}</div>
+            <div class="weather-temp">{{ metrics.weather.temperature }}°C</div>
+            <div class="weather-desc">{{ metrics.weather.weatherDescription }}</div>
+          </div>
+          <div class="weather-details">
+            <div class="weather-detail">
+              <span class="detail-label">天气代码</span>
+              <span class="detail-value">{{ metrics.weather.weatherCode }}</span>
+            </div>
+            <div class="weather-detail">
+              <span class="detail-label">湿度</span>
+              <span class="detail-value">{{ metrics.weather.humidity }}%</span>
+            </div>
+            <div class="weather-detail">
+              <span class="detail-label">风速</span>
+              <span class="detail-value">{{ metrics.weather.windSpeed }} km/h</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 流量来源 -->
+      <div class="info-card traffic-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <span class="card-icon">🌐</span>
+            流量来源
+          </h3>
+        </div>
+        
+        <div class="card-content">
+          <div class="traffic-list">
+            <div *ngFor="let referrer of metrics.websiteStats.referrers" class="traffic-item">
+              <span class="traffic-source">{{ referrer.source }}</span>
+              <div class="traffic-bar">
+                <div class="traffic-fill" 
+                     [style.width.%]="(referrer.visits / metrics.websiteStats.referrers[0].visits) * 100">
+                </div>
+              </div>
+              <span class="traffic-visits">{{ formatNumber(referrer.visits) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 快速操作 -->
+      <div class="info-card actions-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <span class="card-icon">⚡</span>
+            快速操作
+          </h3>
+        </div>
+        
+        <div class="card-content">
+          <div class="actions-grid">
+            <button class="action-item">
+              <span class="action-icon">📊</span>
+              <span class="action-label">详细分析</span>
+            </button>
+            <button class="action-item">
+              <span class="action-icon">📈</span>
+              <span class="action-label">生成报告</span>
+            </button>
+            <button class="action-item">
+              <span class="action-icon">⚙️</span>
+              <span class="action-label">设置告警</span>
+            </button>
+            <button class="action-item">
+              <span class="action-icon">📤</span>
+              <span class="action-label">导出数据</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

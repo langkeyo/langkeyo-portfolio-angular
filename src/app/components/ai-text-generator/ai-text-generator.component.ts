@@ -57,10 +57,8 @@ export class AiTextGeneratorComponent implements OnInit, AfterViewChecked {
 
   ngOnInit(): void {
     this.updateCurrentTime();
-    // 每分钟更新一次时间
-    setInterval(() => {
-      this.updateCurrentTime();
-    }, 60000);
+    // 每分钟更新一次时间，使用 setTimeout 避免变更检测错误
+    this.scheduleTimeUpdate();
   }
 
   private updateCurrentTime(): void {
@@ -68,6 +66,14 @@ export class AiTextGeneratorComponent implements OnInit, AfterViewChecked {
       hour: '2-digit',
       minute: '2-digit'
     });
+  }
+
+  private scheduleTimeUpdate(): void {
+    setTimeout(() => {
+      this.updateCurrentTime();
+      this.cdr.detectChanges();
+      this.scheduleTimeUpdate();
+    }, 60000);
   }
 
   ngAfterViewChecked(): void {
@@ -91,12 +97,11 @@ export class AiTextGeneratorComponent implements OnInit, AfterViewChecked {
     }
 
     // 添加用户消息
-    const currentTime = this.getCurrentTime();
     const userMessage: ChatMessage = {
       type: 'user',
       content: this.prompt,
       contentType: this.selectedType,
-      timestamp: currentTime
+      timestamp: this.getFixedTimestamp()
     };
 
     this.messages.push(userMessage);
@@ -116,12 +121,11 @@ export class AiTextGeneratorComponent implements OnInit, AfterViewChecked {
     console.log('🎯 组件调用参数:', { userPrompt, options });
     this.geminiService.generateText(userPrompt, options).subscribe({
       next: (text) => {
-        const aiTime = this.getCurrentTime();
         const aiMessage: ChatMessage = {
           type: 'ai',
           content: text,
           contentType: this.selectedType,
-          timestamp: aiTime
+          timestamp: this.getFixedTimestamp()
         };
 
         this.messages.push(aiMessage);
@@ -131,12 +135,11 @@ export class AiTextGeneratorComponent implements OnInit, AfterViewChecked {
       },
       error: (error) => {
         console.error('文本生成失败:', error);
-        const errorTime = this.getCurrentTime();
         const errorMessage: ChatMessage = {
           type: 'ai',
           content: '抱歉，生成失败了，请稍后重试。',
           contentType: this.selectedType,
-          timestamp: errorTime
+          timestamp: this.getFixedTimestamp()
         };
 
         this.messages.push(errorMessage);
@@ -181,9 +184,21 @@ export class AiTextGeneratorComponent implements OnInit, AfterViewChecked {
   getCurrentTime(): string {
     // 使用固定的时间戳避免变更检测错误
     const now = new Date();
+    // 将秒数设为0，避免频繁变化导致的检测错误
+    now.setSeconds(0, 0);
     return now.toLocaleTimeString('zh-CN', {
       hour: '2-digit',
       minute: '2-digit'
+    });
+  }
+
+  getFixedTimestamp(): string {
+    // 生成一个固定的时间戳，避免Angular变更检测错误
+    const now = new Date();
+    return now.toLocaleTimeString('zh-CN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
     });
   }
 
@@ -246,7 +261,7 @@ export class AiTextGeneratorComponent implements OnInit, AfterViewChecked {
             type: 'ai',
             content: text,
             contentType: userMessage.contentType,
-            timestamp: this.getCurrentTime()
+            timestamp: this.getFixedTimestamp()
           };
 
           this.messages.splice(index, 0, aiMessage);

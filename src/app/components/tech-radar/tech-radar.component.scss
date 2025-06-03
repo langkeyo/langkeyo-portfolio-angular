@@ -1,0 +1,1047 @@
+.tech-radar-container {
+  padding: 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: white;
+
+  // 标题区域
+  .radar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    .header-content {
+      .radar-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+
+        .title-icon {
+          font-size: 2rem;
+          filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+      }
+
+      .radar-subtitle {
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin: 0;
+        font-weight: 400;
+      }
+    }
+
+    .radar-controls {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+
+      .control-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+
+        .control-label {
+          font-size: 0.75rem;
+          color: rgba(255, 255, 255, 0.7);
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .control-select {
+          padding: 0.5rem 0.75rem;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 8px;
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
+          font-size: 0.875rem;
+          backdrop-filter: blur(10px);
+          transition: all 0.3s ease;
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+          }
+
+          &:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+          }
+
+          option {
+            background: #2a2a2a;
+            color: white;
+          }
+        }
+
+        .action-btn {
+          padding: 0.5rem 1rem;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 8px;
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
+          font-size: 0.875rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          backdrop-filter: blur(10px);
+
+          .btn-icon {
+            font-size: 1rem;
+          }
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+          }
+
+          &:active {
+            transform: translateY(0);
+          }
+
+          &.reset-btn {
+            background: rgba(255, 152, 0, 0.2);
+            border-color: rgba(255, 152, 0, 0.3);
+            
+            &:hover {
+              background: rgba(255, 152, 0, 0.3);
+            }
+          }
+
+          &.trend-btn {
+            background: rgba(33, 150, 243, 0.2);
+            border-color: rgba(33, 150, 243, 0.3);
+            
+            &:hover {
+              background: rgba(33, 150, 243, 0.3);
+            }
+          }
+
+          &.export-btn {
+            background: rgba(76, 175, 80, 0.2);
+            border-color: rgba(76, 175, 80, 0.3);
+            
+            &:hover {
+              background: rgba(76, 175, 80, 0.3);
+            }
+          }
+
+          &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+          }
+        }
+      }
+    }
+  }
+
+  // 主要内容区域
+  .radar-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+
+    // 雷达图区域
+    .radar-section {
+      .radar-canvas-container {
+        position: relative;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 1.5rem;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+
+        .radar-canvas {
+          width: 100%;
+          height: auto;
+          border-radius: 12px;
+          background: rgba(255, 255, 255, 0.05);
+        }
+
+        .radar-legend {
+          margin-top: 1.5rem;
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+          gap: 1rem;
+
+          .legend-section {
+            .legend-title {
+              font-size: 1rem;
+              font-weight: 600;
+              color: white;
+              margin: 0 0 0.75rem 0;
+            }
+
+            .legend-items {
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
+
+              .legend-item {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+
+                .legend-color {
+                  width: 12px;
+                  height: 12px;
+                  border-radius: 50%;
+                }
+
+                .trend-icon {
+                  font-size: 1rem;
+                }
+
+                .legend-label {
+                  font-size: 0.875rem;
+                  color: rgba(255, 255, 255, 0.8);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // 技术列表区域
+    .tech-list-section {
+      .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: white;
+        margin: 0 0 1.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .section-icon {
+          font-size: 1.25rem;
+        }
+      }
+
+      .tech-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1rem;
+        max-height: 600px;
+        overflow-y: auto;
+        padding-right: 0.5rem;
+
+        &::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 3px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.3);
+          border-radius: 3px;
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.5);
+          }
+        }
+
+        .tech-card {
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 12px;
+          padding: 1rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          backdrop-filter: blur(10px);
+
+          &:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+          }
+
+          &.selected {
+            background: rgba(33, 150, 243, 0.2);
+            border-color: rgba(33, 150, 243, 0.4);
+          }
+
+          .tech-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+
+            .tech-name {
+              font-size: 1.1rem;
+              font-weight: 600;
+              color: white;
+            }
+
+            .tech-trend {
+              font-size: 1.25rem;
+            }
+          }
+
+          .tech-info {
+            .tech-meta {
+              display: flex;
+              gap: 0.75rem;
+              margin-bottom: 0.75rem;
+
+              .tech-quadrant,
+              .tech-ring {
+                padding: 0.25rem 0.5rem;
+                border-radius: 12px;
+                font-size: 0.75rem;
+                font-weight: 500;
+                background: rgba(255, 255, 255, 0.1);
+              }
+            }
+
+            .tech-description {
+              font-size: 0.875rem;
+              color: rgba(255, 255, 255, 0.8);
+              margin-bottom: 1rem;
+              line-height: 1.4;
+            }
+
+            .tech-metrics {
+              display: flex;
+              flex-direction: column;
+              gap: 0.75rem;
+              margin-bottom: 1rem;
+
+              .metric {
+                .metric-label {
+                  font-size: 0.75rem;
+                  color: rgba(255, 255, 255, 0.7);
+                  margin-bottom: 0.25rem;
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                }
+
+                .metric-value {
+                  font-size: 0.75rem;
+                  color: rgba(255, 255, 255, 0.9);
+                  font-weight: 600;
+                }
+
+                .metric-bar {
+                  height: 6px;
+                  background: rgba(255, 255, 255, 0.1);
+                  border-radius: 3px;
+                  overflow: hidden;
+                  margin-top: 0.25rem;
+
+                  .metric-fill {
+                    height: 100%;
+                    border-radius: 3px;
+                    transition: width 0.5s ease;
+
+                    &:not(.demand):not(.prospect) {
+                      background: linear-gradient(90deg, #4caf50, #8bc34a);
+                    }
+
+                    &.demand {
+                      background: linear-gradient(90deg, #ff9800, #ffc107);
+                    }
+
+                    &.prospect {
+                      background: linear-gradient(90deg, #2196f3, #21cbf3);
+                    }
+                  }
+                }
+              }
+            }
+
+            .competitiveness-score {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 0.5rem 0.75rem;
+              background: rgba(255, 255, 255, 0.05);
+              border-radius: 8px;
+              margin-bottom: 1rem;
+
+              .score-label {
+                font-size: 0.875rem;
+                color: rgba(255, 255, 255, 0.8);
+              }
+
+              .score-value {
+                font-size: 1rem;
+                font-weight: 700;
+                color: white;
+              }
+            }
+          }
+
+          .tech-actions {
+            .learning-btn {
+              width: 100%;
+              padding: 0.75rem;
+              background: rgba(156, 39, 176, 0.2);
+              border: 1px solid rgba(156, 39, 176, 0.3);
+              border-radius: 8px;
+              color: white;
+              cursor: pointer;
+              transition: all 0.3s ease;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 0.5rem;
+
+              &:hover {
+                background: rgba(156, 39, 176, 0.3);
+                transform: translateY(-1px);
+              }
+
+              &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                transform: none;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 模态框样式
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+
+    .modal-content {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      backdrop-filter: blur(20px);
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+        .modal-title {
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: white;
+          margin: 0;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+
+          .modal-icon {
+            font-size: 1.25rem;
+          }
+        }
+
+        .close-btn {
+          background: none;
+          border: none;
+          color: rgba(255, 255, 255, 0.7);
+          font-size: 1.5rem;
+          cursor: pointer;
+          padding: 0.25rem;
+          border-radius: 4px;
+          transition: all 0.3s ease;
+
+          &:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+          }
+        }
+      }
+
+      .modal-body {
+        padding: 1.5rem;
+      }
+
+      // 技术详情模态框
+      &.tech-detail-modal {
+        width: 600px;
+
+        .tech-detail-content {
+          .detail-section {
+            margin-bottom: 2rem;
+
+            .detail-title {
+              font-size: 1.25rem;
+              font-weight: 600;
+              color: white;
+              margin: 0 0 1rem 0;
+            }
+
+            .detail-grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+              gap: 1rem;
+
+              .detail-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 8px;
+
+                .detail-label {
+                  font-size: 0.875rem;
+                  color: rgba(255, 255, 255, 0.7);
+                }
+
+                .detail-value {
+                  font-size: 0.875rem;
+                  color: white;
+                  font-weight: 500;
+                }
+              }
+            }
+
+            .assessment-grid {
+              display: flex;
+              flex-direction: column;
+              gap: 1rem;
+
+              .assessment-item {
+                padding: 1rem;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 12px;
+
+                &.competitiveness {
+                  background: rgba(156, 39, 176, 0.1);
+                  border: 1px solid rgba(156, 39, 176, 0.2);
+                }
+
+                .assessment-header {
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 0.5rem;
+
+                  .assessment-label {
+                    font-size: 0.875rem;
+                    color: rgba(255, 255, 255, 0.8);
+                    font-weight: 500;
+                  }
+
+                  .assessment-score {
+                    font-size: 1rem;
+                    color: white;
+                    font-weight: 700;
+                  }
+                }
+
+                .assessment-bar {
+                  height: 8px;
+                  background: rgba(255, 255, 255, 0.1);
+                  border-radius: 4px;
+                  overflow: hidden;
+                  margin-bottom: 0.5rem;
+
+                  .assessment-fill {
+                    height: 100%;
+                    border-radius: 4px;
+                    transition: width 0.5s ease;
+
+                    &.skill {
+                      background: linear-gradient(90deg, #4caf50, #8bc34a);
+                    }
+
+                    &.demand {
+                      background: linear-gradient(90deg, #ff9800, #ffc107);
+                    }
+
+                    &.prospect {
+                      background: linear-gradient(90deg, #2196f3, #21cbf3);
+                    }
+
+                    &.competitiveness {
+                      background: linear-gradient(90deg, #9c27b0, #e91e63);
+                    }
+                  }
+                }
+
+                .assessment-desc {
+                  font-size: 0.75rem;
+                  color: rgba(255, 255, 255, 0.6);
+                }
+              }
+            }
+
+            .tech-description-full {
+              font-size: 1rem;
+              color: rgba(255, 255, 255, 0.8);
+              line-height: 1.6;
+              margin: 0;
+            }
+          }
+
+          .detail-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+
+            .primary-btn {
+              background: rgba(156, 39, 176, 0.3);
+              border: 1px solid rgba(156, 39, 176, 0.5);
+
+              &:hover {
+                background: rgba(156, 39, 176, 0.4);
+              }
+            }
+
+            .secondary-btn {
+              background: rgba(33, 150, 243, 0.3);
+              border: 1px solid rgba(33, 150, 243, 0.5);
+
+              &:hover {
+                background: rgba(33, 150, 243, 0.4);
+              }
+            }
+          }
+        }
+      }
+
+      // 学习路径模态框
+      &.learning-path-modal {
+        width: 800px;
+
+        .generating-state,
+        .analyzing-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 3rem;
+          text-align: center;
+
+          .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+          }
+
+          .loading-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+            margin: 0;
+          }
+        }
+
+        .learning-paths {
+          display: flex;
+          flex-direction: column;
+          gap: 2rem;
+
+          .learning-path-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+
+            .path-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+              margin-bottom: 1rem;
+
+              .path-title {
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: white;
+                margin: 0;
+              }
+
+              .path-meta {
+                display: flex;
+                gap: 0.5rem;
+
+                .path-duration {
+                  padding: 0.25rem 0.5rem;
+                  background: rgba(33, 150, 243, 0.2);
+                  color: #2196f3;
+                  border-radius: 12px;
+                  font-size: 0.75rem;
+                  font-weight: 500;
+                }
+
+                .path-difficulty {
+                  padding: 0.25rem 0.5rem;
+                  border-radius: 12px;
+                  font-size: 0.75rem;
+                  font-weight: 500;
+
+                  &.difficulty-beginner {
+                    background: rgba(76, 175, 80, 0.2);
+                    color: #4caf50;
+                  }
+
+                  &.difficulty-intermediate {
+                    background: rgba(255, 152, 0, 0.2);
+                    color: #ff9800;
+                  }
+
+                  &.difficulty-advanced {
+                    background: rgba(244, 67, 54, 0.2);
+                    color: #f44336;
+                  }
+                }
+              }
+            }
+
+            .path-description {
+              font-size: 1rem;
+              color: rgba(255, 255, 255, 0.8);
+              margin: 0 0 1.5rem 0;
+              line-height: 1.5;
+            }
+
+            .path-section {
+              margin-bottom: 1.5rem;
+
+              .section-title {
+                font-size: 1rem;
+                font-weight: 600;
+                color: white;
+                margin: 0 0 0.75rem 0;
+              }
+
+              .prerequisites {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+
+                .prerequisite-tag {
+                  padding: 0.25rem 0.5rem;
+                  background: rgba(255, 152, 0, 0.2);
+                  color: #ff9800;
+                  border-radius: 12px;
+                  font-size: 0.75rem;
+                  font-weight: 500;
+                }
+              }
+
+              .learning-steps {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+
+                .learning-step {
+                  display: flex;
+                  gap: 1rem;
+                  align-items: flex-start;
+
+                  .step-number {
+                    width: 24px;
+                    height: 24px;
+                    background: rgba(33, 150, 243, 0.3);
+                    color: #2196f3;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    flex-shrink: 0;
+                  }
+
+                  .step-content {
+                    flex: 1;
+
+                    .step-title {
+                      font-size: 0.875rem;
+                      font-weight: 600;
+                      color: white;
+                      margin: 0 0 0.25rem 0;
+                    }
+
+                    .step-description {
+                      font-size: 0.75rem;
+                      color: rgba(255, 255, 255, 0.7);
+                      margin: 0 0 0.5rem 0;
+                      line-height: 1.4;
+                    }
+
+                    .step-meta {
+                      display: flex;
+                      gap: 1rem;
+                      align-items: center;
+
+                      .step-time {
+                        font-size: 0.75rem;
+                        color: rgba(255, 255, 255, 0.6);
+                      }
+
+                      .step-status {
+                        font-size: 0.75rem;
+                        color: rgba(255, 255, 255, 0.6);
+
+                        &.completed {
+                          color: #4caf50;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+
+              .outcomes {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+
+                .outcome-item {
+                  display: flex;
+                  align-items: center;
+                  gap: 0.5rem;
+
+                  .outcome-icon {
+                    font-size: 0.875rem;
+                  }
+
+                  .outcome-text {
+                    font-size: 0.875rem;
+                    color: rgba(255, 255, 255, 0.8);
+                  }
+                }
+              }
+            }
+
+            .path-actions {
+              display: flex;
+              gap: 1rem;
+              justify-content: center;
+              margin-top: 1.5rem;
+
+              .start-btn {
+                background: rgba(76, 175, 80, 0.3);
+                border: 1px solid rgba(76, 175, 80, 0.5);
+
+                &:hover {
+                  background: rgba(76, 175, 80, 0.4);
+                }
+              }
+
+              .bookmark-btn {
+                background: rgba(255, 152, 0, 0.3);
+                border: 1px solid rgba(255, 152, 0, 0.5);
+
+                &:hover {
+                  background: rgba(255, 152, 0, 0.4);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // 趋势分析模态框
+      &.trend-analysis-modal {
+        width: 900px;
+
+        .trend-analysis {
+          .trend-overview {
+            margin-bottom: 2rem;
+
+            .overview-title {
+              font-size: 1.25rem;
+              font-weight: 600;
+              color: white;
+              margin: 0 0 1rem 0;
+            }
+
+            .trend-stats {
+              display: grid;
+              grid-template-columns: repeat(3, 1fr);
+              gap: 1rem;
+
+              .trend-stat {
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 12px;
+                padding: 1rem;
+                text-align: center;
+                position: relative;
+
+                .stat-value {
+                  font-size: 2rem;
+                  font-weight: 700;
+                  color: white;
+                  margin-bottom: 0.25rem;
+                }
+
+                .stat-label {
+                  font-size: 0.875rem;
+                  color: rgba(255, 255, 255, 0.7);
+                  margin-bottom: 0.5rem;
+                }
+
+                .stat-icon {
+                  font-size: 1.5rem;
+
+                  &.rising {
+                    color: #4caf50;
+                  }
+
+                  &.stable {
+                    color: #ff9800;
+                  }
+
+                  &.declining {
+                    color: #f44336;
+                  }
+                }
+              }
+            }
+          }
+
+          .detailed-trends {
+            margin-bottom: 2rem;
+
+            .trend-card {
+              background: rgba(255, 255, 255, 0.05);
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              border-radius: 12px;
+              padding: 1.5rem;
+              margin-bottom: 1.5rem;
+
+              .trend-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1rem;
+
+                .trend-title {
+                  font-size: 1.25rem;
+                  font-weight: 600;
+                  color: white;
+                  margin: 0;
+                }
+
+                .trend-badge {
+                  padding: 0.25rem 0.75rem;
+                  border-radius: 12px;
+                  font-size: 0.75rem;
+                  font-weight: 600;
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
+
+                  &.trend-emerging {
+                    background: rgba(76, 175, 80, 0.2);
+                    color: #4caf50;
+                  }
+
+                  &.trend-growing {
+                    background: rgba(33, 150, 243, 0.2);
+                    color: #2196f3;
+                  }
+
+                  &.trend-mature {
+                    background: rgba(255, 152, 0, 0.2);
+                    color: #ff9800;
+                  }
+
+                  &.trend-declining {
+                    background: rgba(244, 67, 54, 0.2);
+                    color: #f44336;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 动画
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  // 响应式设计
+  @media (max-width: 1200px) {
+    .radar-content {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+
+    .radar-header {
+      flex-direction: column;
+      align-items: stretch;
+
+      .radar-controls {
+        justify-content: center;
+      }
+    }
+
+    .modal-overlay .modal-content {
+      &.tech-detail-modal,
+      &.learning-path-modal,
+      &.trend-analysis-modal {
+        width: 95vw;
+        margin: 1rem;
+      }
+    }
+
+    .tech-list-section .tech-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

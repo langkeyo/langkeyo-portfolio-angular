@@ -21,6 +21,150 @@
   margin: 0 auto;
 }
 
+/* Dashboard Section Styles */
+.dashboard-section {
+  padding: 0; /* Dashboard component handles its own padding */
+  margin: 0;
+  width: 100%;
+}
+
+/* Tech Radar Section Styles */
+.tech-radar-section {
+  padding: 0; /* Tech radar component handles its own padding */
+  margin: 0;
+  width: 100%;
+}
+
+/* MCP Section Styles */
+.mcp-section {
+  padding: 4rem 1rem;
+  background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+  }
+
+  .section-description {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #6b7280;
+    margin-bottom: 3rem;
+  }
+
+  .mcp-preview {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+
+  .mcp-info {
+    h3 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-size: 1.1rem;
+      color: #4b5563;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+  }
+
+  .mcp-features {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 2rem;
+
+    li {
+      padding: 0.75rem 0;
+      font-size: 1rem;
+      color: #374151;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+
+  .mcp-demo-button {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+  }
+
+  .mcp-visual {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .mcp-diagram {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .mcp-node {
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 120px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+    &.ai-node {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+    }
+
+    &.protocol-node {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    &.tools-node {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: white;
+    }
+  }
+
+  .mcp-arrow {
+    font-size: 1.5rem;
+    color: #6b7280;
+    font-weight: bold;
+  }
+}
+
 /* 响应式调整 */
 @media (max-width: 768px) {
   .main-content {
@@ -29,5 +173,33 @@
 
   .ai-section {
     padding: 1rem 0.5rem;
+  }
+
+  .mcp-section {
+    padding: 2rem 1rem;
+
+    .section-title {
+      font-size: 2rem;
+    }
+
+    .mcp-preview {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .mcp-diagram {
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 1.5rem;
+
+      .mcp-arrow {
+        transform: rotate(90deg);
+      }
+    }
+
+    .mcp-node {
+      min-width: 100px;
+      padding: 0.75rem 1rem;
+    }
   }
 }

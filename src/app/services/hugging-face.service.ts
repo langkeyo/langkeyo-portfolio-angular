@@ -102,7 +102,7 @@ export class HuggingFaceService {
           errorMessage = '模型正在加载中，请稍后重试';
         } else if (error.error instanceof Blob) {
           // 尝试解析错误信息
-          return from(error.error.text()).pipe(
+          return from(error.error.text() as Promise<string>).pipe(
             map((text: string) => {
               try {
                 const errorData = JSON.parse(text);

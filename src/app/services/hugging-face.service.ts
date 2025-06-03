@@ -103,7 +103,7 @@ export class HuggingFaceService {
         } else if (error.error instanceof Blob) {
           // 尝试解析错误信息
           return from(error.error.text()).pipe(
-            map(text => {
+            map((text: string) => {
               try {
                 const errorData = JSON.parse(text);
                 return {

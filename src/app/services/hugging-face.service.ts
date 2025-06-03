@@ -4,13 +4,10 @@ import { Observable, from, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
-// 尝试导入本地配置（如果存在）
-let localConfig: any = null;
-try {
-  localConfig = require('../../environments/environment.local.ts').localConfig;
-} catch (e) {
-  // 本地配置文件不存在，使用默认配置
-}
+// 本地配置 - 在生产环境中你可以直接在这里设置API密钥
+const localConfig = {
+  huggingFaceApiKey: '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' // 你的真实HF token
+};
 
 export interface ImageGenerationRequest {
   inputs: string;
@@ -37,7 +34,10 @@ export class HuggingFaceService {
   private readonly baseUrl = environment.apis.huggingFace.baseUrl;
   private readonly models = environment.apis.huggingFace.models;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    console.log('🔑 HuggingFace API Key状态:', this.apiKey ? '已配置' : '未配置');
+    console.log('🔑 API Key长度:', this.apiKey?.length || 0);
+  }
 
   /**
    * 生成图像

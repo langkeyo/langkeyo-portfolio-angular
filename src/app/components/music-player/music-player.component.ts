@@ -86,12 +86,14 @@ export class MusicPlayerComponent implements OnInit, OnDestroy {
         // 更新真实的音频时长
         this.currentTrack.duration = this.audio.duration;
         console.log(`音频时长: ${this.audio.duration}秒`);
+        this.cdr.markForCheck();
       }
     });
 
     this.audio.addEventListener('timeupdate', () => {
-      if (this.audio) {
+      if (this.audio && this.isPlaying) {
         this.currentTime = this.audio.currentTime;
+        this.cdr.markForCheck();
       }
     });
 
@@ -698,8 +700,13 @@ export class MusicPlayerComponent implements OnInit, OnDestroy {
     const progressBar = event.currentTarget as HTMLElement;
     const rect = progressBar.getBoundingClientRect();
     const clickX = event.clientX - rect.left;
-    const percentage = clickX / rect.width;
-    const newTime = percentage * this.currentTrack.duration;
+    const percentage = Math.max(0, Math.min(1, clickX / rect.width));
+
+    // 使用音频的实际duration而不是track的duration
+    const actualDuration = this.audio.duration || this.currentTrack.duration;
+    const newTime = percentage * actualDuration;
+
+    console.log(`进度条点击: ${percentage * 100}%, 新时间: ${newTime}s, 总时长: ${actualDuration}s`);
 
     this.audio.currentTime = newTime;
     this.currentTime = newTime;
@@ -707,9 +714,28 @@ export class MusicPlayerComponent implements OnInit, OnDestroy {
 
   // 工具方法
   formatTime(seconds: number): string {
+    if (!seconds || isNaN(seconds) || !isFinite(seconds)) {
+      return '0:00';
+    }
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  getActualDuration(): number {
+    if (this.audio && this.audio.duration && isFinite(this.audio.duration)) {
+      return this.audio.duration;
+    }
+    return this.currentTrack?.duration || 0;
+  }
+
+  getProgressPercentage(): number {
+    const duration = this.getActualDuration();
+    if (!duration || !this.currentTime) {
+      return 0;
+    }
+    const percentage = (this.currentTime / duration) * 100;
+    return Math.max(0, Math.min(100, percentage));
   }
 
   onImageError(event: Event) {
@@ -720,23 +746,13 @@ export class MusicPlayerComponent implements OnInit, OnDestroy {
   }
 
   private startTimeUpdate() {
-    this.stopTimeUpdate();
-    const updateTime = () => {
-      if (this.audio && this.isPlaying) {
-        this.currentTime = this.audio.currentTime;
-        // 使用 markForCheck 而不是 detectChanges
-        this.cdr.markForCheck();
-        this.animationFrame = requestAnimationFrame(updateTime);
-      }
-    };
-    this.animationFrame = requestAnimationFrame(updateTime);
+    // 不需要额外的时间更新，timeupdate事件已经处理了
+    console.log('开始时间更新监听');
   }
 
   private stopTimeUpdate() {
-    if (this.animationFrame) {
-      cancelAnimationFrame(this.animationFrame);
-      this.animationFrame = null;
-    }
+    // 不需要停止，timeupdate事件会自动处理
+    console.log('停止时间更新监听');
   }
 
   private setupKeyboardListeners() {

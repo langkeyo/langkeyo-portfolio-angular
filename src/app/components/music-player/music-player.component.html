@@ -77,14 +77,14 @@
       <div class="progress-section">
         <div class="time-display">
           <span>{{ formatTime(currentTime) }}</span>
-          <span>{{ formatTime(currentTrack?.duration || 0) }}</span>
+          <span>{{ formatTime(getActualDuration()) }}</span>
         </div>
         <div class="progress-bar" (click)="onProgressClick($event)">
           <div class="progress-bg"></div>
-          <div class="progress-fill" 
-               [style.width.%]="currentTrack ? (currentTime / currentTrack.duration) * 100 : 0"></div>
-          <div class="progress-handle" 
-               [style.left.%]="currentTrack ? (currentTime / currentTrack.duration) * 100 : 0"></div>
+          <div class="progress-fill"
+               [style.width.%]="getProgressPercentage()"></div>
+          <div class="progress-handle"
+               [style.left.%]="getProgressPercentage()"></div>
         </div>
       </div>
 
